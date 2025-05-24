@@ -21,6 +21,8 @@ void initStats(Stats* s)
     s->atoms_outside_cutoff    = 0;
     s->clusters_within_cutoff  = 0;
     s->clusters_outside_cutoff = 0;
+    s->load                    = 0;
+    s->store                   = 0;
 }
 
 void displayStatistics(Atom* atom, Parameter* param, Stats* stats, double* timer)
@@ -61,6 +63,9 @@ void displayStatistics(Atom* atom, Parameter* param, Stats* stats, double* timer
         forceUsefulVolume);
     printf("\tCycles/SIMD iteration: %.4f\n",
         timer[FORCE] * param->proc_freq * 1e9 / stats->force_iters);
+    
+    printf("\tTotal Load operation: %lld\n", stats->load);
+    printf("\tTotal Store operation: %lld\n", stats->store);
 
 #ifdef USE_REFERENCE_VERSION
     const double atoms_eff = (double)stats->atoms_within_cutoff /
