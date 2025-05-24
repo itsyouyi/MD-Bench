@@ -1171,6 +1171,9 @@ double computeForceLJ4xnHalfNeigh(
                         simd_real_sub(simd_real_load(&cj_f[CL_Y_OFFSET]), ty_sum));
                     simd_real_store(&cj_f[CL_Z_OFFSET],
                         simd_real_sub(simd_real_load(&cj_f[CL_Z_OFFSET]), tz_sum));
+#ifndef LIKWID_PERFMON
+                    addStat(stats->store, 3);
+#endif
                 }
             }
 
@@ -1364,6 +1367,10 @@ double computeForceLJ4xnHalfNeigh(
                         simd_real_sub(simd_real_load(&cj_f[CL_Y_OFFSET]), ty_sum));
                     simd_real_store(&cj_f[CL_Z_OFFSET],
                         simd_real_sub(simd_real_load(&cj_f[CL_Z_OFFSET]), tz_sum));
+
+#ifndef LIKWID_PERFMON
+                    addStat(stats->store, 3);
+#endif
                 }
             }
 
@@ -1371,10 +1378,21 @@ double computeForceLJ4xnHalfNeigh(
             simd_real_incr_reduced_sum(&ci_f[CL_Y_OFFSET], fiy0, fiy1, fiy2, fiy3);
             simd_real_incr_reduced_sum(&ci_f[CL_Z_OFFSET], fiz0, fiz1, fiz2, fiz3);
 
+#ifndef LIKWID_PERFMON
+#if defined(__ISA_NEON__)
+#if PRECISION == 1
+            addStat(stats->load, 19+(12+12*4)+(numneighs-1)*(8+12*4));
+#else
+            addStat(stats->load, 19+(12+12*2)+(numneighs-1)*(8+12*2));
+#endif
+#else
+            addStat(stats->load, 19+(12+12)+(numneighs-1)*(8+12));
+#endif
+            addStat(stats->store, 3);
             addStat(stats->calculated_forces, 1);
             addStat(stats->num_neighs, numneighs);
-            addStat(stats->force_iters,
-                (long long int)((double)numneighs * CLUSTER_M / CLUSTER_N));
+            addStat(stats->force_iters, (long long int)((double)numneighs));
+#endif
         }
 
         LIKWID_MARKER_STOP("force");
@@ -1852,11 +1870,21 @@ double computeForceLJ4xnFullNeigh(
             simd_real_incr_reduced_sum(&ci_f[CL_Y_OFFSET], fiy0, fiy1, fiy2, fiy3);
             simd_real_incr_reduced_sum(&ci_f[CL_Z_OFFSET], fiz0, fiz1, fiz2, fiz3);
 
+#ifndef LIKWID_PERFMON
+#if defined(__ISA_NEON__)
+#if PRECISION == 1
+            addStat(stats->load, 19+(9+12*4)+(numneighs-1)*(5+12*4));
+#else
+            addStat(stats->load, 19+(9+12*2)+(numneighs-1)*(5+12*2));
+#endif
+#else
+            addStat(stats->load, 19+(9+12)+(numneighs-1)*(5+12));
+#endif
+            addStat(stats->store, 3);
             addStat(stats->calculated_forces, 1);
             addStat(stats->num_neighs, numneighs);
             addStat(stats->force_iters, (long long int)((double)numneighs));
-            // addStat(stats->force_iters, (long long int)((double)numneighs * CLUSTER_M /
-            // CLUSTER_N));
+#endif
         }
 
         LIKWID_MARKER_STOP("force");
@@ -2183,9 +2211,21 @@ double computeForceLJ2xnFullNeigh(
             simd_real_incr_reduced_sum_j2(&ci_f[CL_Y_OFFSET], fiy0, fiy1);
             simd_real_incr_reduced_sum_j2(&ci_f[CL_Z_OFFSET], fiz0, fiz1);
 
+#ifndef LIKWID_PERFMON
+#if defined(__ISA_NEON__)
+#if PRECISION == 1
+            addStat(stats->load, 11+(7+6*4)+(numneighs-1)*(5+6*4));
+#else
+            addStat(stats->load, 11+(7+6*2)+(numneighs-1)*(5+6*2));
+#endif
+#else
+            addStat(stats->load, 11+(7+6)+(numneighs-1)*(5+6));
+#endif
+            addStat(stats->store, 3);
             addStat(stats->calculated_forces, 1);
             addStat(stats->num_neighs, numneighs);
             addStat(stats->force_iters, (long long int)((double)numneighs));
+#endif
 
         }
 
@@ -2402,6 +2442,10 @@ double computeForceLJ2xnHalfNeigh(
                         simd_real_sub(simd_real_load(&cj_f[CL_Y_OFFSET]), ty_sum));
                     simd_real_store(&cj_f[CL_Z_OFFSET],
                         simd_real_sub(simd_real_load(&cj_f[CL_Z_OFFSET]), tz_sum));
+
+#ifndef LIKWID_PERFMON                    
+                    addStat(stats->store, 3);
+#endif
                 }
             }
 
@@ -2520,6 +2564,9 @@ double computeForceLJ2xnHalfNeigh(
                         simd_real_sub(simd_real_load(&cj_f[CL_Y_OFFSET]), ty_sum));
                     simd_real_store(&cj_f[CL_Z_OFFSET],
                         simd_real_sub(simd_real_load(&cj_f[CL_Z_OFFSET]), tz_sum));
+#ifndef LIKWID_PERFMON                    
+                    addStat(stats->store, 3);
+#endif
                 }
             }
 
@@ -2527,10 +2574,23 @@ double computeForceLJ2xnHalfNeigh(
             simd_real_incr_reduced_sum_j2(&ci_f[CL_Y_OFFSET], fiy0, fiy1);
             simd_real_incr_reduced_sum_j2(&ci_f[CL_Z_OFFSET], fiz0, fiz1);
 
+
+#ifndef LIKWID_PERFMON
+#if defined(__ISA_NEON__)
+#if PRECISION == 1
+            addStat(stats->load, 11+(10+6*4)+(numneighs-1)*(8+6*4));
+#else
+            addStat(stats->load, 11+(10+6*2)+(numneighs-1)*(8+6*2));
+#endif
+#else
+            addStat(stats->load, 11+(10+6)+(numneighs-1)*(8+6));
+#endif
+            addStat(stats->store, 3);
             addStat(stats->calculated_forces, 1);
             addStat(stats->num_neighs, numneighs);
             addStat(stats->force_iters,
                 (long long int)((double)numneighs * CLUSTER_M / CLUSTER_N));
+#endif
         }
 
         LIKWID_MARKER_STOP("force");
