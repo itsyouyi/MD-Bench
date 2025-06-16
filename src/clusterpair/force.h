@@ -80,14 +80,14 @@ extern double computeForceLJCUDA(Parameter*, Atom*, Neighbor*, Stats*);
 #define CLUSTER_M 4
 // Auto selection based on VECTOR_WIDTH and architecture
 #ifdef CLUSTER_PAIR_KERNEL_AUTO
-    #if VECTOR_WIDTH > CLUSTER_M * 2
-        #define CLUSTERPAIR_KERNEL_2XNN
-    #elif defined(__ISA_NEON__) || defined(__ISA_SVE__) || defined(__ISA_SVE2__)
+    // #if VECTOR_WIDTH > CLUSTER_M * 2
+    //     #define CLUSTERPAIR_KERNEL_2XNN
+    // #elif defined(__ISA_NEON__) || defined(__ISA_SVE__) || defined(__ISA_SVE2__)
         #define CLUSTERPAIR_KERNEL_2XN
-    #else
-        #define CLUSTERPAIR_KERNEL_4XN
+    // #else
+    //     #define CLUSTERPAIR_KERNEL_4XN
 
-    #endif
+    // #endif
 #endif
 
 // Define the kernel-specific macros based on which kernel is selected
@@ -111,7 +111,7 @@ extern double computeForceLJCUDA(Parameter*, Atom*, Neighbor*, Stats*);
     #define KERNEL_NAME "Simd2xN"
     #define CLUSTER_N   VECTOR_WIDTH
     #define UNROLL_I    2
-    #define UNROLL_J    2
+    #define UNROLL_J    1
 #endif
 
 // Verify that one of the kernel variants is selected
@@ -150,6 +150,11 @@ extern double computeForceLJCUDA(Parameter*, Atom*, Neighbor*, Stats*);
 #define CJ0_FROM_CI(a)      ((a) >> 1)
 #define CJ1_FROM_CI(a)      ((a) >> 1)
 #define CI_BASE_INDEX(a, b) (((a) >> 1) * CLUSTER_N * (b) + ((a)&0x1) * (CLUSTER_N >> 1))
+#define CJ_BASE_INDEX(a, b) ((a)*CLUSTER_N * (b))
+#elif CLUSTER_M == CLUSTER_N / 4 // M < N
+#define CJ0_FROM_CI(a)      ((a) >> 2)
+#define CJ1_FROM_CI(a)      ((a) >> 2)
+#define CI_BASE_INDEX(a, b) (((a) >> 2) * CLUSTER_N * (b) + ((a)&0x1) * (CLUSTER_N >> 2) + ((a)&0x2) * (CLUSTER_N >> 2))
 #define CJ_BASE_INDEX(a, b) ((a)*CLUSTER_N * (b))
 #else
 #error "Invalid cluster configuration!"

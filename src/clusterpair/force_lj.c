@@ -1923,6 +1923,15 @@ double computeForceLJ2xnFullNeigh(
             MD_SIMD_FLOAT yi1_tmp = simd_real_broadcast(ci_x[CL_Y_OFFSET + 1]);
             MD_SIMD_FLOAT zi0_tmp = simd_real_broadcast(ci_x[CL_Z_OFFSET + 0]);
             MD_SIMD_FLOAT zi1_tmp = simd_real_broadcast(ci_x[CL_Z_OFFSET + 1]);
+            // printf("i=%d\n", ci);            
+            // SIMD_PRINT_REAL(xi0_tmp);
+            // SIMD_PRINT_REAL(xi1_tmp);
+            // SIMD_PRINT_REAL(yi0_tmp);
+            // SIMD_PRINT_REAL(yi1_tmp);
+            // SIMD_PRINT_REAL(zi0_tmp);
+            // SIMD_PRINT_REAL(zi1_tmp);
+
+
             MD_SIMD_FLOAT fix0    = simd_real_zero();
             MD_SIMD_FLOAT fiy0    = simd_real_zero();
             MD_SIMD_FLOAT fiz0    = simd_real_zero();
@@ -1935,7 +1944,7 @@ double computeForceLJ2xnFullNeigh(
             int* ci_t             = &atom->cl_t[ci_sca_base];
             MD_SIMD_INT tbase0    = simd_i32_broadcast(ci_t[0] * atom->ntypes);
             MD_SIMD_INT tbase1    = simd_i32_broadcast(ci_t[1] * atom->ntypes);
-#endif
+#endif           
 
             for (int k = 0; k < numneighs_masked; k++) {
                 int cj          = neighs[k];
@@ -1950,6 +1959,13 @@ double computeForceLJ2xnFullNeigh(
                 MD_SIMD_FLOAT xj_tmp    = simd_real_load(&cj_x[CL_X_OFFSET]);
                 MD_SIMD_FLOAT yj_tmp    = simd_real_load(&cj_x[CL_Y_OFFSET]);
                 MD_SIMD_FLOAT zj_tmp    = simd_real_load(&cj_x[CL_Z_OFFSET]);
+            
+            //     printf("i=%d,j=%d\n", ci, cj);
+            // SIMD_PRINT_REAL(xj_tmp);
+            // SIMD_PRINT_REAL(yj_tmp);
+            // SIMD_PRINT_REAL(zj_tmp);
+
+    
                 MD_SIMD_FLOAT delx0     = simd_real_sub(xi0_tmp, xj_tmp);
                 MD_SIMD_FLOAT dely0     = simd_real_sub(yi0_tmp, yj_tmp);
                 MD_SIMD_FLOAT delz0     = simd_real_sub(zi0_tmp, zj_tmp);
@@ -1965,17 +1981,36 @@ double computeForceLJ2xnFullNeigh(
                     atom->masks_2xn_fn[cond0 * 2 + 1]);
 #else
 #if CLUSTER_M < CLUSTER_N
+
+#if CLUSTER_M == CLUSTER_N / 2
                 unsigned int cond0      = (unsigned int)((cj << 1) + 0 == ci);
                 unsigned int cond1      = (unsigned int)((cj << 1) + 1 == ci);
+#elif CLUSTER_M == CLUSTER_N / 4
+                unsigned int cond0      = (unsigned int)((cj << 2) + 0 == ci);
+                unsigned int cond1      = (unsigned int)((cj << 2) + 1 == ci);
+                unsigned int cond2      = (unsigned int)((cj << 2) + 2 == ci);
+                unsigned int cond3      = (unsigned int)((cj << 2) + 3 == ci);
+#endif
+
 #else
                 unsigned int cond0 = (unsigned int)(cj == ci_cj0);
                 unsigned int cond1 = (unsigned int)(cj == ci_cj1);
 #endif
+
+#if CLUSTER_M == CLUSTER_N / 2
                 MD_SIMD_MASK excl_mask0 = simd_mask_from_u32(
                     atom->masks_2xn_fn[cond0 * 4 + cond1 * 2 + 0]);
                 MD_SIMD_MASK excl_mask1 = simd_mask_from_u32(
                     atom->masks_2xn_fn[cond0 * 4 + cond1 * 2 + 1]);
+#elif CLUSTER_M == CLUSTER_N / 4 
+                MD_SIMD_MASK excl_mask0 = simd_mask_from_u32(
+                    atom->masks_2xn_fn_long[cond0 * 16 + cond1 * 8 + cond2 * 4 + cond3 * 2 + 0]);
+                MD_SIMD_MASK excl_mask1 = simd_mask_from_u32(
+                    atom->masks_2xn_fn_long[cond0 * 16 + cond1 * 8 + cond2 * 4 + cond3 * 2 + 1]);                    
 #endif
+#endif
+                // SIMD_PRINT_MASK(excl_mask0);
+                // SIMD_PRINT_MASK(excl_mask1);           
 
                 MD_SIMD_FLOAT rsq0 = simd_real_fma(delx0,
                     delx0,
@@ -2066,6 +2101,9 @@ double computeForceLJ2xnFullNeigh(
                 fiz1 = simd_real_masked_add(fiz1,
                     simd_real_mul(delz1, force1),
                     cutoff_mask1);
+// printf("i=%d,j=%d\n", ci, cj);
+//                 SIMD_PRINT_REAL(fix0);
+//                 SIMD_PRINT_REAL(fix1);
 
             }
 
@@ -2082,6 +2120,11 @@ double computeForceLJ2xnFullNeigh(
                 MD_SIMD_FLOAT xj_tmp = simd_real_load(&cj_x[CL_X_OFFSET]);
                 MD_SIMD_FLOAT yj_tmp = simd_real_load(&cj_x[CL_Y_OFFSET]);
                 MD_SIMD_FLOAT zj_tmp = simd_real_load(&cj_x[CL_Z_OFFSET]);
+
+            // printf("i=%d,j=%d\n", ci, cj);
+            // SIMD_PRINT_REAL(xj_tmp);
+            // SIMD_PRINT_REAL(yj_tmp);
+            // SIMD_PRINT_REAL(zj_tmp);
                 MD_SIMD_FLOAT delx0  = simd_real_sub(xi0_tmp, xj_tmp);
                 MD_SIMD_FLOAT dely0  = simd_real_sub(yi0_tmp, yj_tmp);
                 MD_SIMD_FLOAT delz0  = simd_real_sub(zi0_tmp, zj_tmp);
@@ -2176,10 +2219,28 @@ double computeForceLJ2xnFullNeigh(
                 fiz1 = simd_real_masked_add(fiz1,
                     simd_real_mul(delz1, force1),
                     cutoff_mask1);
+
+
+                // SIMD_PRINT_REAL(xj_tmp);
+                // SIMD_PRINT_REAL(yj_tmp);
+                // SIMD_PRINT_REAL(zj_tmp);
+
+                // printf("i=%d,j=%d\n", ci, cj);
+
                 
             }
+            // printf("i=%d\n", ci);     
+            // SIMD_PRINT_REAL(fix0);
+            // SIMD_PRINT_REAL(fix1);
+            // printf("before force=%f\n", ci_f[CL_X_OFFSET]);
 
-            simd_real_incr_reduced_sum_j2(&ci_f[CL_X_OFFSET], fix0, fix1);
+            float x = simd_real_incr_reduced_sum_j2(&ci_f[CL_X_OFFSET], fix0, fix1);
+            // printf("force=%f\n", ci_f[CL_X_OFFSET]);
+            // printf("x=%f\n", x);
+            // printf("after force=%f\n", ci_f[CL_X_OFFSET]);
+            // printf("after force=%f\n", ci_f[CL_X_OFFSET+1]);
+ 
+            //  printf("\n");  
             simd_real_incr_reduced_sum_j2(&ci_f[CL_Y_OFFSET], fiy0, fiy1);
             simd_real_incr_reduced_sum_j2(&ci_f[CL_Z_OFFSET], fiz0, fiz1);
 

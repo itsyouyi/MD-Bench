@@ -18,8 +18,10 @@ inline int get_ncj_from_nci(int nci)
 {
 #if CLUSTER_M == CLUSTER_N
     return nci;
-#elif CLUSTER_M < CLUSTER_N
+#elif CLUSTER_M == CLUSTER_N / 2
     return nci >> 1;
+#elif CLUSTER_M == CLUSTER_N / 4
+    return nci >> 2;
 #else
     return nci << 1;
 #endif
@@ -591,7 +593,7 @@ void initMasks(Atom* atom)
             atom->masks_4xn_fn[cond0 * 8 + cond1 * 4 + 3] = (unsigned int)(0xff -
                                                                            0x8 * cond0 -
                                                                            0x80 * cond1);
-            
+#if CLUSTER_M == CLUSTER_N / 2            
             atom->masks_2xn_hn[cond0 * 4 + cond1 * 2 + 0] = (unsigned int)(0xf -
                                                                            0x1 * cond0 -
                                                                            0x7 * cond1);
@@ -606,6 +608,26 @@ void initMasks(Atom* atom)
                                                                            0x2 * cond0 -
                                                                            0x8 * cond1);
 
+#elif CLUSTER_M == CLUSTER_N / 4
+            for (unsigned int cond2 = 0; cond2 < 2; cond2++) {
+                for (unsigned int cond3 = 0; cond3 < 2; cond3++) {
+                    
+                    atom->masks_2xn_fn_long[cond0 * 16 + cond1 * 8 + cond2 * 4 + cond3 * 2 + 0] = 
+                                                            (unsigned int)(0xff -
+                                                                           0x1 * cond0 -
+                                                                           0x4 * cond1 -
+                                                                           0x10 * cond2 -
+                                                                           0x40 * cond3);
+                    atom->masks_2xn_fn_long[cond0 * 16 + cond1 * 8 + cond2 * 4 + cond3 * 2 + 1] = 
+                                                            (unsigned int)(0xff -
+                                                                           0x2 * cond0 -
+                                                                           0x8 * cond1 -
+                                                                           0x20 * cond2 -
+                                                                           0x80 *cond3);
+                }
+            }
+
+#endif
 #else
             atom->masks_4xn_hn[cond0 * 8 + cond1 * 4 + 0] = (unsigned int)(0x3 -
                                                                            0x1 * cond0);

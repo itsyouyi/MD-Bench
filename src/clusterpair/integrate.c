@@ -40,7 +40,7 @@ void initialIntegrateCPU(Parameter* param, Atom* atom)
             ciX[CL_Z_OFFSET + cii] += param->dt * ciV[CL_Z_OFFSET + cii];
         }
 
-        /*
+        
         // Check if there is an invalid cluster
         for (int cii = 0; cii < atom->iclusters[ci].natoms; cii++) {
             if(
@@ -52,7 +52,7 @@ void initialIntegrateCPU(Parameter* param, Atom* atom)
                 break;
             }
         }
-        */
+        
     }
 
     DEBUG_MESSAGE("cpuInitialIntegrate end\n");

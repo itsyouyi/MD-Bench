@@ -246,6 +246,7 @@ int main(int argc, char** argv)
 
     for (int n = 0; n < param.ntimes; n++) {
         initialIntegrate(&param, &atom);
+        DEBUG_MESSAGE("timestep = %d\n", n);
 
         if ((n + 1) % param.reneigh_every) {
             if (!((n + 1) % param.prune_every)) {

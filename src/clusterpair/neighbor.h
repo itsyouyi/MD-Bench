@@ -24,6 +24,12 @@
 // 4x8 kernel diagonal masks
 #define NBNXN_INTERACTION_MASK_DIAG_J8_0 0xf0f8fcfeU
 #define NBNXN_INTERACTION_MASK_DIAG_J8_1 0x0080c0e0U
+// 2x8 kernel diagonal masks
+#define NBNXN_INTERACTION_MASK_DIAG_I2_J8_0 0xfcfeU
+#define NBNXN_INTERACTION_MASK_DIAG_I2_J8_1 0xf0f8U
+#define NBNXN_INTERACTION_MASK_DIAG_I2_J8_2 0xc0e0U
+#define NBNXN_INTERACTION_MASK_DIAG_I2_J8_3 0x0080U
+
 
 typedef struct {
     int every;
