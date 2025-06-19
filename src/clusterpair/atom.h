@@ -51,8 +51,8 @@ typedef struct {
     unsigned int masks_2xnn_fn[8];
     unsigned int masks_2xn_hn[8];
     unsigned int masks_2xn_fn[8];
-    unsigned int masks_2xn_hn_long[32];
-    unsigned int masks_2xn_fn_long[32];
+    unsigned int masks_2xn_hn_long[512];
+    unsigned int masks_2xn_fn_long[512];
     unsigned int masks_4xn_hn[16];
     unsigned int masks_4xn_fn[16];
 } Atom;

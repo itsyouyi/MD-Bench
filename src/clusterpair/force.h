@@ -154,14 +154,23 @@ extern double computeForceLJCUDA(Parameter*, Atom*, Neighbor*, Stats*);
 #elif CLUSTER_M == CLUSTER_N / 4 // M < N
 #define CJ0_FROM_CI(a)      ((a) >> 2)
 #define CJ1_FROM_CI(a)      ((a) >> 2)
-#define CI_BASE_INDEX(a, b) (((a) >> 2) * CLUSTER_N * (b) + ((a)&0x1) * (CLUSTER_N >> 2) + ((a)&0x2) * (CLUSTER_N >> 2))
+#define CI_BASE_INDEX(a, b) (((a) >> 2) * CLUSTER_N * (b) + ((a)&0x1) * (CLUSTER_N >> 2) + (((a) >> 1) & 0x1) * (CLUSTER_N >> 1))
+#define CJ_BASE_INDEX(a, b) ((a)*CLUSTER_N * (b))
+#elif CLUSTER_M == CLUSTER_N / 8 // M < N
+#define CJ0_FROM_CI(a)      ((a) >> 3)
+#define CJ1_FROM_CI(a)      ((a) >> 3)
+#define CI_BASE_INDEX(a, b) \
+    (((a) >> 3) * CLUSTER_N * (b) + \
+    (((a) >> 0) & 0x1) * (CLUSTER_N >> 3) + \
+    (((a) >> 1) & 0x1) * (CLUSTER_N >> 2) + \
+    (((a) >> 2) & 0x1) * (CLUSTER_N >> 1))
 #define CJ_BASE_INDEX(a, b) ((a)*CLUSTER_N * (b))
 #else
 #error "Invalid cluster configuration!"
 #endif
 
-#if CLUSTER_N != 2 && CLUSTER_N != 4 && CLUSTER_N != 8
-#error "Cluster N dimension can be only 2, 4 and 8"
+#if CLUSTER_N != 2 && CLUSTER_N != 4 && CLUSTER_N != 8 && CLUSTER_N != 16 
+#error "Cluster N dimension can be only 2, 4, 8, 16"
 #endif
 
 #endif // __FORCE_H_

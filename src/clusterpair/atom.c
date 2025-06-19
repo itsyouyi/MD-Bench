@@ -22,6 +22,8 @@ inline int get_ncj_from_nci(int nci)
     return nci >> 1;
 #elif CLUSTER_M == CLUSTER_N / 4
     return nci >> 2;
+#elif CLUSTER_M == CLUSTER_N / 8
+    return nci >> 3;
 #else
     return nci << 1;
 #endif
@@ -626,6 +628,47 @@ void initMasks(Atom* atom)
                                                                            0x80 *cond3);
                 }
             }
+
+#elif CLUSTER_M == CLUSTER_N / 8
+            for (unsigned int cond2 = 0; cond2 < 2; cond2++) {
+                for (unsigned int cond3 = 0; cond3 < 2; cond3++) {
+                    for (unsigned int cond4 = 0; cond4 < 2; cond4++) {
+                        for (unsigned int cond5 = 0; cond5 < 2; cond5++) {
+                            for (unsigned int cond6 = 0; cond6 < 2; cond6++) {
+                                for (unsigned int cond7 = 0; cond7 < 2; cond7++) {
+                                    atom->masks_2xn_fn_long[cond0 * 256 + cond1 * 128 + cond2 * 64 + cond3 * 32 + 
+                                                            cond4 * 16  + cond5 * 8  +  cond6 * 4  + cond7 * 2 + 0] =
+                                                            (unsigned int)(0xffff -
+                                                                           0x1 * cond0 -
+                                                                           0x4 * cond1 -
+                                                                           0x10 * cond2 -
+                                                                           0x40 * cond3 -
+                                                                           0x100 * cond4 -
+                                                                           0x400 * cond5 -
+                                                                           0x1000 * cond6 -
+                                                                           0x4000 * cond7);
+
+                                    atom->masks_2xn_fn_long[cond0 * 256 + cond1 * 128 + cond2 * 64 + cond3 * 32 + 
+                                                            cond4 * 16  + cond5 * 8  +  cond6 * 4  + cond7 * 2 + 1] =
+                                                            (unsigned int)(0xffff -
+                                                                           0x2 * cond0 -
+                                                                           0x8 * cond1 -
+                                                                           0x20 * cond2 -
+                                                                           0x80 * cond3 -
+                                                                           0x200 * cond4 -
+                                                                           0x800 * cond5 -
+                                                                           0x2000 * cond6 -
+                                                                           0x8000 * cond7);
+
+
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+
 
 #endif
 #else

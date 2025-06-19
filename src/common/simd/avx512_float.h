@@ -105,6 +105,47 @@ static inline MD_FLOAT simd_real_incr_reduced_sum(
     return 0.0;
 }
 
+// Waiting for optimization
+static inline MD_FLOAT simd_real_incr_reduced_sum_j2(
+    MD_FLOAT* m, MD_SIMD_FLOAT v0, MD_SIMD_FLOAT v1)
+{
+    // Step 1: Horizontal addition within each 512-bit vector
+    __m256 lo0 = _mm512_castps512_ps256(v0);                // v0 low 256
+    __m256 hi0 = _mm512_extractf32x8_ps(v0, 1);              // v0 high 256
+    __m256 sum0 = _mm256_add_ps(lo0, hi0);                   // v0[0:7] + v0[8:15]
+
+    __m256 lo1 = _mm512_castps512_ps256(v1);                // v1 low 256
+    __m256 hi1 = _mm512_extractf32x8_ps(v1, 1);              // v1 high 256
+    __m256 sum1 = _mm256_add_ps(lo1, hi1);                   // v1[0:7] + v1[8:15]
+
+    // Step 2: Further horizontal reduction to get two final float sums
+    __m128 lo128_0 = _mm256_castps256_ps128(sum0);
+    __m128 hi128_0 = _mm256_extractf128_ps(sum0, 1);
+    __m128 sum128_0 = _mm_add_ps(lo128_0, hi128_0);          // sum0 reduced to 128 bits
+
+    __m128 lo128_1 = _mm256_castps256_ps128(sum1);
+    __m128 hi128_1 = _mm256_extractf128_ps(sum1, 1);
+    __m128 sum128_1 = _mm_add_ps(lo128_1, hi128_1);          // sum1 reduced to 128 bits
+
+    // Step 3: Pairwise horizontal add within 128-bit vector to get 1 float each
+    sum128_0 = _mm_hadd_ps(sum128_0, sum128_0); // [a+b, c+d, a+b, c+d]
+    sum128_0 = _mm_hadd_ps(sum128_0, sum128_0); // [total0, total0, total0, total0]
+
+    sum128_1 = _mm_hadd_ps(sum128_1, sum128_1);
+    sum128_1 = _mm_hadd_ps(sum128_1, sum128_1);
+
+    // Step 4: Interleave the two results into one __m128
+    __m128 result = _mm_unpacklo_ps(sum128_0, sum128_1); // [total0, total1, _, _]
+
+    // Step 5: Store lowest two floats into m[0] and m[1] using legacy SSE
+    _mm_storel_pi((__m64*)m, result); // stores total0 and total1
+
+    // Step 6: Return the scalar sum of both totals
+    float total0 = _mm_cvtss_f32(sum128_0);
+    float total1 = _mm_cvtss_f32(sum128_1);
+    return total0 + total1;
+}
+
 static inline MD_SIMD_FLOAT simd_real_load_h_duplicate(const float* m)
 {
     return _mm512_castpd_ps(_mm512_broadcast_f64x4(_mm256_load_pd((const double*)(m))));
