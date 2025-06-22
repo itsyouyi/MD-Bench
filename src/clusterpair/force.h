@@ -80,14 +80,14 @@ extern double computeForceLJCUDA(Parameter*, Atom*, Neighbor*, Stats*);
 #define CLUSTER_M 4
 // Auto selection based on VECTOR_WIDTH and architecture
 #ifdef CLUSTER_PAIR_KERNEL_AUTO
-    #if VECTOR_WIDTH > CLUSTER_M * 2
-        #define CLUSTERPAIR_KERNEL_2XNN
-    #elif defined(__ISA_NEON__) || defined(__ISA_SVE__) || defined(__ISA_SVE2__)
+    // #if VECTOR_WIDTH > CLUSTER_M * 2
+    //     #define CLUSTERPAIR_KERNEL_2XNN
+    // #elif defined(__ISA_NEON__) || defined(__ISA_SVE__) || defined(__ISA_SVE2__)
         #define CLUSTERPAIR_KERNEL_2XN
-    #else
-        #define CLUSTERPAIR_KERNEL_4XN
+    // #else
+    //     #define CLUSTERPAIR_KERNEL_4XN
 
-    #endif
+    // #endif
 #endif
 
 // Define the kernel-specific macros based on which kernel is selected
@@ -146,17 +146,28 @@ extern double computeForceLJCUDA(Parameter*, Atom*, Neighbor*, Stats*);
 #define CJ1_FROM_CI(a)      (((a) << 1) | 0x1)
 #define CI_BASE_INDEX(a, b) ((a)*CLUSTER_M * (b))
 #define CJ_BASE_INDEX(a, b) (((a) >> 1) * CLUSTER_M * (b) + ((a)&0x1) * (CLUSTER_M >> 1))
-#elif CLUSTER_M == CLUSTER_N / 2 // M < N
+#elif CLUSTER_M * 2 == CLUSTER_N
 #define CJ0_FROM_CI(a)      ((a) >> 1)
 #define CJ1_FROM_CI(a)      ((a) >> 1)
 #define CI_BASE_INDEX(a, b) (((a) >> 1) * CLUSTER_N * (b) + ((a)&0x1) * (CLUSTER_N >> 1))
 #define CJ_BASE_INDEX(a, b) ((a)*CLUSTER_N * (b))
+#elif CLUSTER_M * 4 == CLUSTER_N 
+#define CJ0_FROM_CI(a)      ((a) >> 2)
+#define CJ1_FROM_CI(a)      ((a) >> 2)
+#define CI_BASE_INDEX(a, b) (((a) >> 2) * CLUSTER_N * (b) + ((a)&0x3) * (CLUSTER_N >> 2))
+#define CJ_BASE_INDEX(a, b) ((a)*CLUSTER_N * (b))
+#elif CLUSTER_M * 8 == CLUSTER_N
+#define CJ0_FROM_CI(a)      ((a) >> 3)
+#define CJ1_FROM_CI(a)      ((a) >> 3)
+#define CI_BASE_INDEX(a, b) (((a) >> 3) * CLUSTER_N * (b) + (((a) >> 0) & 0x1) * (CLUSTER_N >> 3) + \
+                            (((a) >> 1) & 0x1) * (CLUSTER_N >> 2) + (((a) >> 2) & 0x1) * (CLUSTER_N >> 1))
+#define CJ_BASE_INDEX(a, b) ((a)*CLUSTER_N * (b))                            
 #else
 #error "Invalid cluster configuration!"
 #endif
 
-#if CLUSTER_N != 2 && CLUSTER_N != 4 && CLUSTER_N != 8
-#error "Cluster N dimension can be only 2, 4 and 8"
+#if CLUSTER_N != 2 && CLUSTER_N != 4 && CLUSTER_N != 8 && CLUSTER_N != 16 
+#error "Cluster N dimension can be only 2, 4, 8 and 16"
 #endif
 
 #endif // __FORCE_H_

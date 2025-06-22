@@ -1963,18 +1963,45 @@ double computeForceLJ2xnFullNeigh(
                     atom->masks_2xn_fn[cond0 * 2 + 0]);
                 MD_SIMD_MASK excl_mask1 = simd_mask_from_u32(
                     atom->masks_2xn_fn[cond0 * 2 + 1]);
-#else
-#if CLUSTER_M < CLUSTER_N
+                    
+#elif CLUSTER_M * 2 == CLUSTER_N 
                 unsigned int cond0      = (unsigned int)((cj << 1) + 0 == ci);
                 unsigned int cond1      = (unsigned int)((cj << 1) + 1 == ci);
-#else
-                unsigned int cond0 = (unsigned int)(cj == ci_cj0);
-                unsigned int cond1 = (unsigned int)(cj == ci_cj1);
-#endif
+
                 MD_SIMD_MASK excl_mask0 = simd_mask_from_u32(
                     atom->masks_2xn_fn[cond0 * 4 + cond1 * 2 + 0]);
                 MD_SIMD_MASK excl_mask1 = simd_mask_from_u32(
                     atom->masks_2xn_fn[cond0 * 4 + cond1 * 2 + 1]);
+
+#elif CLUSTER_M * 4 == CLUSTER_N           
+                unsigned int cond0      = (unsigned int)((cj << 2) + 0 == ci);
+                unsigned int cond1      = (unsigned int)((cj << 2) + 1 == ci);
+                unsigned int cond2      = (unsigned int)((cj << 2) + 2 == ci);
+                unsigned int cond3      = (unsigned int)((cj << 2) + 3 == ci);
+                
+                MD_SIMD_MASK excl_mask0 = simd_mask_from_u32(
+                    atom->masks_2xn_fn[cond0 * 16 + cond1 * 8 + cond2 * 4 + cond3 * 2 + 0]);
+                MD_SIMD_MASK excl_mask1 = simd_mask_from_u32(
+                    atom->masks_2xn_fn[cond0 * 16 + cond1 * 8 + cond2 * 4 + cond3 * 2 + 1]);  
+
+#elif CLUSTER_M * 8 == CLUSTER_N
+                unsigned int cond0      = (unsigned int)((cj << 3) + 0 == ci);
+                unsigned int cond1      = (unsigned int)((cj << 3) + 1 == ci);
+                unsigned int cond2      = (unsigned int)((cj << 3) + 2 == ci);
+                unsigned int cond3      = (unsigned int)((cj << 3) + 3 == ci);
+                unsigned int cond4      = (unsigned int)((cj << 3) + 4 == ci);
+                unsigned int cond5      = (unsigned int)((cj << 3) + 5 == ci);
+                unsigned int cond6      = (unsigned int)((cj << 3) + 6 == ci);
+                unsigned int cond7      = (unsigned int)((cj << 3) + 7 == ci);
+                
+                MD_SIMD_MASK excl_mask0 = simd_mask_from_u32(
+                    atom->masks_2xn_fn[
+                        cond0 * 256 + cond1 * 128 + cond2 * 64 + cond3 * 32 + 
+                        cond4 * 16  + cond5 * 8  +  cond6 * 4  + cond7 * 2 + 0]);
+                MD_SIMD_MASK excl_mask1 = simd_mask_from_u32(
+                    atom->masks_2xn_fn[
+                        cond0 * 256 + cond1 * 128 + cond2 * 64 + cond3 * 32 + 
+                        cond4 * 16  + cond5 * 8  +  cond6 * 4  + cond7 * 2 + 1]);  
 #endif
 
                 MD_SIMD_FLOAT rsq0 = simd_real_fma(delx0,
@@ -2285,25 +2312,52 @@ double computeForceLJ2xnHalfNeigh(
                 MD_SIMD_FLOAT delx1     = simd_real_sub(xi1_tmp, xj_tmp);
                 MD_SIMD_FLOAT dely1     = simd_real_sub(yi1_tmp, yj_tmp);
                 MD_SIMD_FLOAT delz1     = simd_real_sub(zi1_tmp, zj_tmp);
-
+                
 #if CLUSTER_M == CLUSTER_N
                 unsigned int cond0      = (unsigned int)(cj == ci_cj0);
                 MD_SIMD_MASK excl_mask0 = simd_mask_from_u32(
                     atom->masks_2xn_hn[cond0 * 2 + 0]);
                 MD_SIMD_MASK excl_mask1 = simd_mask_from_u32(
                     atom->masks_2xn_hn[cond0 * 2 + 1]);
-#else
-#if CLUSTER_M < CLUSTER_N
-                unsigned int cond0        = (unsigned int)((cj << 1) + 0 == ci);
-                unsigned int cond1        = (unsigned int)((cj << 1) + 1 == ci);
-#else
-                unsigned int cond0 = (unsigned int)(cj == ci_cj0);
-                unsigned int cond1 = (unsigned int)(cj == ci_cj1);
-#endif
+                    
+#elif CLUSTER_M * 2 == CLUSTER_N 
+                unsigned int cond0      = (unsigned int)((cj << 1) + 0 == ci);
+                unsigned int cond1      = (unsigned int)((cj << 1) + 1 == ci);
+
                 MD_SIMD_MASK excl_mask0 = simd_mask_from_u32(
                     atom->masks_2xn_hn[cond0 * 4 + cond1 * 2 + 0]);
                 MD_SIMD_MASK excl_mask1 = simd_mask_from_u32(
                     atom->masks_2xn_hn[cond0 * 4 + cond1 * 2 + 1]);
+
+#elif CLUSTER_M * 4 == CLUSTER_N           
+                unsigned int cond0      = (unsigned int)((cj << 2) + 0 == ci);
+                unsigned int cond1      = (unsigned int)((cj << 2) + 1 == ci);
+                unsigned int cond2      = (unsigned int)((cj << 2) + 2 == ci);
+                unsigned int cond3      = (unsigned int)((cj << 2) + 3 == ci);
+                
+                MD_SIMD_MASK excl_mask0 = simd_mask_from_u32(
+                    atom->masks_2xn_hn[cond0 * 16 + cond1 * 8 + cond2 * 4 + cond3 * 2 + 0]);
+                MD_SIMD_MASK excl_mask1 = simd_mask_from_u32(
+                    atom->masks_2xn_hn[cond0 * 16 + cond1 * 8 + cond2 * 4 + cond3 * 2 + 1]);  
+
+#elif CLUSTER_M * 8 == CLUSTER_N
+                unsigned int cond0      = (unsigned int)((cj << 3) + 0 == ci);
+                unsigned int cond1      = (unsigned int)((cj << 3) + 1 == ci);
+                unsigned int cond2      = (unsigned int)((cj << 3) + 2 == ci);
+                unsigned int cond3      = (unsigned int)((cj << 3) + 3 == ci);
+                unsigned int cond4      = (unsigned int)((cj << 3) + 4 == ci);
+                unsigned int cond5      = (unsigned int)((cj << 3) + 5 == ci);
+                unsigned int cond6      = (unsigned int)((cj << 3) + 6 == ci);
+                unsigned int cond7      = (unsigned int)((cj << 3) + 7 == ci);
+                
+                MD_SIMD_MASK excl_mask0 = simd_mask_from_u32(
+                    atom->masks_2xn_hn[
+                        cond0 * 256 + cond1 * 128 + cond2 * 64 + cond3 * 32 + 
+                        cond4 * 16  + cond5 * 8  +  cond6 * 4  + cond7 * 2 + 0]);
+                MD_SIMD_MASK excl_mask1 = simd_mask_from_u32(
+                    atom->masks_2xn_hn[
+                        cond0 * 256 + cond1 * 128 + cond2 * 64 + cond3 * 32 + 
+                        cond4 * 16  + cond5 * 8  +  cond6 * 4  + cond7 * 2 + 1]);  
 #endif
 
                 MD_SIMD_FLOAT rsq0 = simd_real_fma(delx0,

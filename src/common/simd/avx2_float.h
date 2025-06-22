@@ -99,6 +99,24 @@ static inline MD_FLOAT simd_real_incr_reduced_sum(
     return *((MD_FLOAT*)&t0);
 }
 
+static inline MD_FLOAT simd_real_incr_reduced_sum_j2(
+    MD_FLOAT* m, MD_SIMD_FLOAT v0, MD_SIMD_FLOAT v1) {
+    
+    __m128 t0, t1;
+	v0 = _mm256_hadd_ps(v0, v1); 
+    v1 = _mm256_hadd_ps(v0, v0);    
+
+    t0 = _mm256_castps256_ps128(v1);    
+    t1 = _mm256_extractf128_ps(v1, 1); 
+    
+    t0 = _mm_add_ps(t0, t1);
+    t1 = _mm_add_ps(t0, _mm_load_ps(m));
+
+    _mm_storel_pi((__m64*)m, t1);
+    t0 = _mm_add_ss(t1, _mm_shuffle_ps(t1, t1, _MM_SHUFFLE(0, 0, 0, 1)));
+    return _mm_cvtss_f32(t0);
+}
+
 static inline MD_SIMD_FLOAT simd_real_load_h_duplicate(const MD_FLOAT* m)
 {
     return _mm256_broadcast_ps((const __m128*)(m));

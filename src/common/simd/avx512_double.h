@@ -108,6 +108,53 @@ static inline MD_FLOAT simd_real_incr_reduced_sum(
     return _mm_cvtsd_f64(_mm512_castpd512_pd128(t0));
 }
 
+// Waiting for optimizationAdd commentMore actions
+static inline MD_FLOAT simd_real_incr_reduced_sum_j2(
+    MD_FLOAT* m, MD_SIMD_FLOAT v0, MD_SIMD_FLOAT v1)
+{
+    __m512d t0, t1;
+    __m128d sum0, sum1;
+    __m128d mvals;
+
+    // Perform horizontal pairwise addition on v0:
+    // Using permute_pd with mask 0x55 to swap adjacent elements,
+    // then add to original vector to get partial sums:
+    // [x0+x1, x1+x0, x2+x3, x3+x2, ...]
+    t0 = _mm512_add_pd(v0, _mm512_permute_pd(v0, 0x55));
+
+    // Perform the same horizontal pairwise addition on v1
+    t1 = _mm512_add_pd(v1, _mm512_permute_pd(v1, 0x55));
+
+    // Shuffle and add 256-bit lanes within the 512-bit vectors to accumulate sums
+    t0 = _mm512_add_pd(t0, _mm512_shuffle_f64x2(t0, t0, 0x4e));
+    t1 = _mm512_add_pd(t1, _mm512_shuffle_f64x2(t1, t1, 0x4e));
+
+    // Shuffle and add 128-bit lanes for further reduction within the vectors
+    t0 = _mm512_add_pd(t0, _mm512_shuffle_f64x2(t0, t0, 0xb1));
+    t1 = _mm512_add_pd(t1, _mm512_shuffle_f64x2(t1, t1, 0xb1));
+
+    // Extract the lowest 128 bits (two doubles) from each vector as the reduced sums
+    sum0 = _mm512_castpd512_pd128(t0);
+    sum1 = _mm512_castpd512_pd128(t1);
+
+    // Load the current values from the output array m (2 doubles)
+    mvals = _mm_loadu_pd(m);
+
+    // Add the reduced sums to the loaded values:
+    // Unpack and interleave the lower doubles from sum0 and sum1, then add element-wise
+    mvals = _mm_add_pd(mvals, _mm_unpacklo_pd(sum0, sum1));
+
+    // Store the updated sums back into the array m
+    _mm_storeu_pd(m, mvals);
+
+    // Extract the scalar double values from sum0 and sum1
+    double res0 = _mm_cvtsd_f64(sum0);
+    double res1 = _mm_cvtsd_f64(sum1);
+
+    // Return the total sum of both vectors' reduced results
+    return res0 + res1;
+}
+
 static inline MD_SIMD_FLOAT simd_real_load_h_duplicate(const MD_FLOAT* m)
 {
     return _mm512_broadcast_f64x4(_mm256_load_pd(m));

@@ -202,22 +202,8 @@ static unsigned int get_imask(int rdiag, int ci, int cj)
     return (rdiag && ci == cj ? NBNXN_INTERACTION_MASK_DIAG : NBNXN_INTERACTION_MASK_ALL);
 }
 
-/* Returns a diagonal or off-diagonal interaction mask for cj-size=2 */
-static unsigned int get_imask_simd_j2(int rdiag, int ci, int cj)
-{
-    return (rdiag && ci * 2 == cj
-                ? NBNXN_INTERACTION_MASK_DIAG_J2_0
-                : (rdiag && ci * 2 + 1 == cj ? NBNXN_INTERACTION_MASK_DIAG_J2_1
-                                             : NBNXN_INTERACTION_MASK_ALL));
-}
-
-/* Returns a diagonal or off-diagonal interaction mask for cj-size=4 */
-static unsigned int get_imask_simd_j4(int rdiag, int ci, int cj)
-{
-    return (rdiag && ci == cj ? NBNXN_INTERACTION_MASK_DIAG : NBNXN_INTERACTION_MASK_ALL);
-}
-
-/* Returns a diagonal or off-diagonal interaction mask for cj-size=8 */
+#if (CLUSTER_M * 2 == CLUSTER_N ) || (CLUSTER_M > CLUSTER_N)
+/* Returns a diagonal or off-diagonal interaction mask for cj-size=8*/
 static unsigned int get_imask_simd_j8(int rdiag, int ci, int cj)
 {
     return (rdiag && ci == cj * 2
@@ -225,6 +211,43 @@ static unsigned int get_imask_simd_j8(int rdiag, int ci, int cj)
                 : (rdiag && ci == cj * 2 + 1 ? NBNXN_INTERACTION_MASK_DIAG_J8_1
                                              : NBNXN_INTERACTION_MASK_ALL));
 }
+#elif CLUSTER_M * 4 == CLUSTER_N
+static unsigned int get_imask_simd_j8(int rdiag, int ci, int cj)
+{
+    if (rdiag && ci == cj * 4)
+        return NBNXN_INTERACTION_MASK_DIAG_I2_J8_0;
+    else if(rdiag && ci == cj * 4 + 1)
+        return NBNXN_INTERACTION_MASK_DIAG_I2_J8_1;
+    else if(rdiag && ci == cj * 4 + 2)
+        return NBNXN_INTERACTION_MASK_DIAG_I2_J8_2;
+    else if(rdiag && ci == cj * 4 + 3)
+        return NBNXN_INTERACTION_MASK_DIAG_I2_J8_3;
+    else
+        return NBNXN_INTERACTION_MASK_ALL;
+}
+#elif CLUSTER_M * 8 == CLUSTER_N
+static unsigned int get_imask_simd_j16(int rdiag, int ci, int cj)
+{
+    if (rdiag && ci == cj * 8)
+        return NBNXN_INTERACTION_MASK_DIAG_J16_0;
+    else if(rdiag && ci == cj * 8 + 1)
+        return NBNXN_INTERACTION_MASK_DIAG_J16_1;
+    else if(rdiag && ci == cj * 8 + 2)
+        return NBNXN_INTERACTION_MASK_DIAG_J16_2;
+    else if(rdiag && ci == cj * 8 + 3)
+        return NBNXN_INTERACTION_MASK_DIAG_J16_3;
+    else if(rdiag && ci == cj * 8 + 4)
+        return NBNXN_INTERACTION_MASK_DIAG_J16_4;
+    else if(rdiag && ci == cj * 8 + 5)
+        return NBNXN_INTERACTION_MASK_DIAG_J16_5;
+    else if(rdiag && ci == cj * 8 + 6)
+        return NBNXN_INTERACTION_MASK_DIAG_J16_6;
+    else if(rdiag && ci == cj * 8 + 7)
+        return NBNXN_INTERACTION_MASK_DIAG_J16_7;
+    else
+        return NBNXN_INTERACTION_MASK_ALL;
+}
+#endif
 
 #if VECTOR_WIDTH == 2
 #define get_imask_simd_4xn get_imask_simd_j2
@@ -235,8 +258,10 @@ static unsigned int get_imask_simd_j8(int rdiag, int ci, int cj)
 #elif VECTOR_WIDTH == 8
 #define get_imask_simd_4xn  get_imask_simd_j8
 #define get_imask_simd_2xnn get_imask_simd_j4
+#define get_imask_simd_2xn  get_imask_simd_j8
 #elif VECTOR_WIDTH == 16
 #define get_imask_simd_2xnn get_imask_simd_j8
+#define get_imask_simd_2xn  get_imask_simd_j16
 #else
 #error "Invalid cluster configuration"
 #endif
@@ -1085,8 +1110,8 @@ void buildClusters(Atom* atom)
         int c         = bincount[bin];
         int ac        = 0;
         int nclusters = ((c + CLUSTER_M - 1) / CLUSTER_M);
-        if (CLUSTER_N > CLUSTER_M && nclusters % 2) {
-            nclusters++;
+        if (CLUSTER_N > CLUSTER_M && nclusters % (CLUSTER_N / CLUSTER_M) != 0) {
+            nclusters += (CLUSTER_N / CLUSTER_M) - (nclusters % (CLUSTER_N / CLUSTER_M));
         }
         for (int cl = 0; cl < nclusters; cl++) {
             const int ci = atom->Nclusters_local;
@@ -1261,6 +1286,7 @@ void defineJClusters(Atom* atom)
             atom->jclusters[cj1].bbmaxz = bbmaxz;
             atom->jclusters[cj1].natoms = MAX(0, atom->iclusters[ci].natoms - CLUSTER_N);
         } else {
+            #if CLUSTER_M * 2 == CLUSTER_N           
             if (ci % 2 == 0) {
                 const int ci1               = ci + 1;
                 atom->jclusters[cj0].bbminx = MIN(atom->iclusters[ci].bbminx,
@@ -1278,6 +1304,86 @@ void defineJClusters(Atom* atom)
                 atom->jclusters[cj0].natoms = atom->iclusters[ci].natoms +
                                               atom->iclusters[ci1].natoms;
             }
+
+#elif CLUSTER_M * 4 == CLUSTER_N 
+            if(ci % 4 == 0){
+                const int ci1               = ci + 1;
+                const int ci2               = ci + 2;
+                const int ci3               = ci + 3;
+                atom->jclusters[cj0].bbminx = MIN4(
+                    atom->iclusters[ci].bbminx,  atom->iclusters[ci1].bbminx,
+                    atom->iclusters[ci2].bbminx, atom->iclusters[ci3].bbminx);
+                atom->jclusters[cj0].bbmaxx = MAX4(
+                    atom->iclusters[ci].bbmaxx,  atom->iclusters[ci1].bbmaxx,
+                    atom->iclusters[ci2].bbmaxx, atom->iclusters[ci3].bbmaxx);
+                atom->jclusters[cj0].bbminy = MIN4(
+                    atom->iclusters[ci].bbminy,  atom->iclusters[ci1].bbminy,
+                    atom->iclusters[ci2].bbminy, atom->iclusters[ci3].bbminy);
+                atom->jclusters[cj0].bbmaxy = MAX4(
+                    atom->iclusters[ci].bbmaxy,  atom->iclusters[ci1].bbmaxy,
+                    atom->iclusters[ci2].bbmaxy, atom->iclusters[ci3].bbmaxy);
+                atom->jclusters[cj0].bbminz = MIN4(
+                    atom->iclusters[ci].bbminz,  atom->iclusters[ci1].bbminz,
+                    atom->iclusters[ci2].bbminz, atom->iclusters[ci3].bbminz);
+                atom->jclusters[cj0].bbmaxz = MAX4(
+                    atom->iclusters[ci].bbmaxz,  atom->iclusters[ci1].bbmaxz,
+                    atom->iclusters[ci2].bbmaxz, atom->iclusters[ci3].bbmaxz);
+                atom->jclusters[cj0].natoms = atom->iclusters[ci].natoms +
+                                              atom->iclusters[ci1].natoms +
+                                              atom->iclusters[ci2].natoms +
+                                              atom->iclusters[ci3].natoms;
+            } 
+
+#elif CLUSTER_M * 8 == CLUSTER_N     
+            if(ci % 8 == 0){
+                const int ci1               = ci + 1;
+                const int ci2               = ci + 2;
+                const int ci3               = ci + 3;
+                const int ci4               = ci + 4;
+                const int ci5               = ci + 5;
+                const int ci6               = ci + 6;
+                const int ci7               = ci + 7;
+                atom->jclusters[cj0].bbminx = MIN8(
+                    atom->iclusters[ci].bbminx,  atom->iclusters[ci1].bbminx,  
+                    atom->iclusters[ci2].bbminx, atom->iclusters[ci3].bbminx,
+                    atom->iclusters[ci4].bbminx, atom->iclusters[ci5].bbminx,  
+                    atom->iclusters[ci6].bbminx, atom->iclusters[ci7].bbminx);
+                atom->jclusters[cj0].bbmaxx = MAX8(
+                    atom->iclusters[ci].bbmaxx,  atom->iclusters[ci1].bbmaxx,  
+                    atom->iclusters[ci2].bbmaxx, atom->iclusters[ci3].bbmaxx,
+                    atom->iclusters[ci4].bbmaxx, atom->iclusters[ci5].bbmaxx,  
+                    atom->iclusters[ci6].bbmaxx, atom->iclusters[ci7].bbmaxx);
+                atom->jclusters[cj0].bbminy = MIN8(
+                    atom->iclusters[ci].bbminy,  atom->iclusters[ci1].bbminy,  
+                    atom->iclusters[ci2].bbminy, atom->iclusters[ci3].bbminy,
+                    atom->iclusters[ci4].bbminy, atom->iclusters[ci5].bbminy,  
+                    atom->iclusters[ci6].bbminy, atom->iclusters[ci7].bbminy);
+                atom->jclusters[cj0].bbmaxy = MAX8(
+                    atom->iclusters[ci].bbmaxy,  atom->iclusters[ci1].bbmaxy,  
+                    atom->iclusters[ci2].bbmaxy, atom->iclusters[ci3].bbmaxy,
+                    atom->iclusters[ci4].bbmaxy, atom->iclusters[ci5].bbmaxy,  
+                    atom->iclusters[ci6].bbmaxy, atom->iclusters[ci7].bbmaxy);
+                atom->jclusters[cj0].bbminz = MIN8(
+                    atom->iclusters[ci].bbminz,  atom->iclusters[ci1].bbminz,  
+                    atom->iclusters[ci2].bbminz, atom->iclusters[ci3].bbminz,
+                    atom->iclusters[ci4].bbminz, atom->iclusters[ci5].bbminz,  
+                    atom->iclusters[ci6].bbminz, atom->iclusters[ci7].bbminz);
+                atom->jclusters[cj0].bbmaxz = MAX8(
+                    atom->iclusters[ci].bbmaxz,  atom->iclusters[ci1].bbmaxz,  
+                    atom->iclusters[ci2].bbmaxz, atom->iclusters[ci3].bbmaxz,
+                    atom->iclusters[ci4].bbmaxz, atom->iclusters[ci5].bbmaxz,  
+                    atom->iclusters[ci6].bbmaxz, atom->iclusters[ci7].bbmaxz);
+                atom->jclusters[cj0].natoms = atom->iclusters[ci].natoms  +
+                                              atom->iclusters[ci1].natoms +
+                                              atom->iclusters[ci2].natoms +
+                                              atom->iclusters[ci3].natoms +
+                                              atom->iclusters[ci4].natoms +
+                                              atom->iclusters[ci5].natoms +
+                                              atom->iclusters[ci6].natoms +
+                                              atom->iclusters[ci7].natoms;
+            }         
+#endif            
+            
         }
     }
 
