@@ -46,46 +46,46 @@ TOTAL 1.11s
 
     | FORCE | NEIGH |BALANCE|FORWARD|REVERSE| UPDATE|  REST |  SETUP|
 ----|-------|-------|-------|-------|-------|-------|-------|-------|
- AVG|   0.05|   1.00|   0.00|   0.00|   0.00|   0.01|   0.06|   0.57|
- MIN|   0.05|   1.00|   0.00|   0.00|   0.00|   0.01|   0.06|   0.57|
- MAX|   0.05|   1.00|   0.00|   0.00|   0.00|   0.01|   0.06|   0.57|
+ AVG|   0.05|   1.00|   0.00|   0.00|   0.00|   0.01|   0.05|   0.57|
+ MIN|   0.05|   1.00|   0.00|   0.00|   0.00|   0.01|   0.05|   0.57|
+ MAX|   0.05|   1.00|   0.00|   0.00|   0.00|   0.01|   0.05|   0.57|
 ----------------------------------------------------------------------------
-Performance: 23.67 million atom updates per second
-Generating '/tmp/3074961.alex/nsys-report-1134.qdstrm'
-[1/7] [========================100%] report11.nsys-rep
-[2/7] [========================100%] report11.sqlite
+Performance: 23.72 million atom updates per second
+Generating '/tmp/3074961.alex/nsys-report-7ed1.qdstrm'
+[1/7] [========================100%] report14.nsys-rep
+[2/7] [========================100%] report14.sqlite
 [3/7] Executing 'nvtx_sum' stats report
-SKIPPED: /home/hpc/ptfs/ptfs262h/gpu/report11.sqlite does not contain NV Tools Extension (NVTX) data.
+SKIPPED: /home/hpc/ptfs/ptfs262h/gpu/report14.sqlite does not contain NV Tools Extension (NVTX) data.
 [4/7] Executing 'cuda_api_sum' stats report
 
- Time (%)  Total Time (ns)  Num Calls  Avg (ns)   Med (ns)  Min (ns)  Max (ns)   StdDev (ns)           Name         
- --------  ---------------  ---------  ---------  --------  --------  ---------  -----------  ----------------------
-     57.6       61,950,131        791   78,318.7  37,895.0     8,788    435,285     90,958.8  cudaDeviceSynchronize 
-     35.8       38,488,690        146  263,621.2  26,727.5     8,828  1,514,367    384,674.6  cudaMemcpy            
-      3.1        3,288,259        791    4,157.1   3,347.0     3,016    218,945     10,060.0  cudaLaunchKernel      
-      1.2        1,311,956         12  109,329.7  74,443.0     4,339    500,163    143,597.7  cudaFree              
-      1.2        1,275,111         15   85,007.4  17,605.0     2,235    192,412     88,515.6  cudaMalloc            
-      1.2        1,248,453        201    6,211.2   3,618.0     3,277    234,155     17,239.5  cudaMemset            
-      0.0           14,449          1   14,449.0  14,449.0    14,449     14,449          0.0  cuCtxSynchronize      
-      0.0            3,106          1    3,106.0   3,106.0     3,106      3,106          0.0  cudaDeviceReset       
-      0.0              852          1      852.0     852.0       852        852          0.0  cuModuleGetLoadingMode
+ Time (%)  Total Time (ns)  Num Calls  Avg (ns)   Med (ns)  Min (ns)   Max (ns)   StdDev (ns)           Name         
+ --------  ---------------  ---------  ---------  --------  --------  ----------  -----------  ----------------------
+     69.5       72,246,412        791   91,335.5  37,705.0    15,240  10,172,349    370,508.6  cudaDeviceSynchronize 
+     23.7       24,665,681        146  168,943.0  24,193.5     8,798   1,387,105    275,232.0  cudaMemcpy            
+      3.0        3,126,766        791    3,952.9   3,316.0     3,006     227,642      8,153.1  cudaLaunchKernel      
+      1.5        1,513,647         15  100,909.8   6,874.0     2,355     394,613    119,750.1  cudaMalloc            
+      1.3        1,313,919         12  109,493.3  77,699.0     4,268     489,081    140,715.8  cudaFree              
+      1.1        1,119,710        201    5,570.7   3,657.0     3,297      58,115      7,662.6  cudaMemset            
+      0.0           14,218          1   14,218.0  14,218.0    14,218      14,218          0.0  cuCtxSynchronize      
+      0.0            3,657          1    3,657.0   3,657.0     3,657       3,657          0.0  cudaDeviceReset       
+      0.0              872          1      872.0     872.0       872         872          0.0  cuModuleGetLoadingMode
 
 [5/7] Executing 'cuda_gpu_kern_sum' stats report
 
  Time (%)  Total Time (ns)  Instances  Avg (ns)   Med (ns)   Min (ns)  Max (ns)  StdDev (ns)                                                  Name                                                
  --------  ---------------  ---------  ---------  ---------  --------  --------  -----------  ----------------------------------------------------------------------------------------------------
-     78.4       43,060,019        201  214,229.0  214,335.0   208,478   220,319      1,955.5  computeForceLJCudaFullNeigh(int *, float *, float *, float *, int, float *, float *, int, int, int …
-     11.9        6,544,285        200   32,721.4   32,704.0    32,160    33,504        271.9  cudaInitialIntegrate_warp(float *, float *, float *, int *, int, float, float)                      
-      6.0        3,269,419        200   16,347.1   16,255.0    15,775    17,631        405.3  cudaFinalIntegrate_warp(float *, float *, int *, int, float)                                        
-      3.7        2,029,364        190   10,680.9   10,720.0    10,111    11,296        241.2  cudaUpdatePbc_warp(float *, int *, int *, int *, int *, int *, int, int, float, float, float)       
+     78.4       43,062,006        201  214,238.8  214,335.0   209,471   219,647      1,989.0  computeForceLJCudaFullNeigh(int *, float *, float *, float *, int, float *, float *, int, int, int …
+     11.9        6,544,573        200   32,722.9   32,703.0    32,096    34,432        290.9  cudaInitialIntegrate_warp(float *, float *, float *, int *, int, float, float)                      
+      6.0        3,270,544        200   16,352.7   16,256.0    15,744    17,728        380.3  cudaFinalIntegrate_warp(float *, float *, int *, int, float)                                        
+      3.7        2,029,269        190   10,680.4   10,720.0    10,048    11,455        248.7  cudaUpdatePbc_warp(float *, int *, int *, int *, int *, int *, int, int, float, float, float)       
 
 [6/7] Executing 'cuda_gpu_mem_time_sum' stats report
 
  Time (%)  Total Time (ns)  Count  Avg (ns)   Med (ns)   Min (ns)  Max (ns)   StdDev (ns)           Operation          
  --------  ---------------  -----  ---------  ---------  --------  ---------  -----------  ----------------------------
-     50.0       16,800,929     22  763,678.6  731,916.0   705,692  1,144,698    109,880.7  [CUDA memcpy Device-to-Host]
-     45.6       15,317,930    124  123,531.7    6,560.0     1,376  1,178,969    284,043.2  [CUDA memcpy Host-to-Device]
-      4.5        1,496,889    201    7,447.2    7,424.0     7,168      9,312        183.3  [CUDA memset]               
+     74.5       15,149,577    124  122,174.0    6,560.0     1,376  1,309,305    284,005.6  [CUDA memcpy Host-to-Device]
+     18.2        3,703,309     22  168,332.2  167,487.0   156,576    199,007     10,257.3  [CUDA memcpy Device-to-Host]
+      7.3        1,493,880    201    7,432.2    7,424.0     7,168      9,376        181.5  [CUDA memset]               
 
 [7/7] Executing 'cuda_gpu_mem_size_sum' stats report
 
@@ -93,4 +93,8 @@ SKIPPED: /home/hpc/ptfs/ptfs262h/gpu/report11.sqlite does not contain NV Tools E
  ----------  -----  --------  --------  --------  --------  -----------  ----------------------------
   1,929.600    201     9.600     9.600     9.600     9.600        0.000  [CUDA memset]               
     212.686    124     1.715     0.067     0.000    13.354        3.747  [CUDA memcpy Host-to-Device]
-    211.200     22     9.600     9.600     9.600     9.600        0.000  [CUDA memcpy Device-to-Host]
+     53.770     22     2.444     2.453     2.353     2.460        0.030  [CUDA memcpy Device-to-Host]
+
+Generated:
+        /home/hpc/ptfs/ptfs262h/gpu/report14.nsys-rep
+        /home/hpc/ptfs/ptfs262h/gpu/report14.sqlite

@@ -151,10 +151,10 @@ extern "C" void copyDataToCUDADevice(Parameter* param, Atom* atom, Neighbor* nei
 extern "C" void copyDataFromCUDADevice(Parameter* param, Atom* atom) {
     memcpyFromGPU(atom->cl_x,
         cuda_cl_x,
-        atom->Nclusters_max * CLUSTER_M * SCLUSTER_SIZE * 3 * sizeof(MD_FLOAT));
+        (atom->Nclusters_local+atom->Nclusters_ghost) * CLUSTER_M * SCLUSTER_SIZE * 3 * sizeof(MD_FLOAT));
     memcpyFromGPU(atom->cl_v,
         cuda_cl_v,
-        atom->Nclusters_max * CLUSTER_M * SCLUSTER_SIZE * 3 * sizeof(MD_FLOAT));
+        (atom->Nclusters_local+atom->Nclusters_ghost) * CLUSTER_M * SCLUSTER_SIZE * 3 * sizeof(MD_FLOAT));
 }
 
 extern "C" void cudaDeviceFree(Parameter* param)
