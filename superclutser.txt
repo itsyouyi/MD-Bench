@@ -1,0 +1,96 @@
+ptfs262h@a0702:~/gpu$ nsys profile --stats=true --trace=cuda,nvtx ./MDBench-CP-auto-NVCC-X86-SP 
+WARNING: Device-side CUDA Event completion trace is currently enabled.
+         This may increase runtime overhead and the likelihood of false
+         dependencies across CUDA Streams. If you wish to avoid this, please
+         disable the feature with --cuda-event-trace=false.
+Collecting data...
+Using temporary file: /tmp/3074717.alex/atoms_tmp.txt
+Parameters:
+        Force field: lj
+        Kernel: GPU, MxN: 8x8, Vector width: 8
+        SIMD Intrinsics: CUDA
+        Super-clustering: yes
+        Data layout: AoS
+        Floating-point precision: single
+        Unit cells (nx, ny, nz): 32, 32, 32
+        Domain box sizes (x, y, z): 5.374708e+01, 5.374708e+01, 5.374708e+01
+        Periodic (x, y, z): 1, 1, 1
+        Lattice size: 1.679596e+00
+        Epsilon: 1.000000e+00
+        Sigma: 1.000000e+00
+        Temperature: 1.440000e+00
+        RHO: 8.442000e-01
+        Mass: 1.000000e+00
+        Number of types: 4
+        Number of timesteps: 200
+        Report stats every (timesteps): 100
+        Reneighbor every (timesteps): 20
+        Sort atoms: no
+        Single atom type: false
+        Prune every (timesteps): 1000
+        Output positions every (timesteps): 20
+        Output velocities every (timesteps): 5
+        Delta time (dt): 5.000000e-03
+        Cutoff radius: 2.500000e+00
+        Skin: 3.000000e-01
+        Half neighbor lists: 0
+        Processor frequency (GHz): 2.4000
+----------------------------------------------------------------------------
+step    temp            pressure
+0       1.440001e+00    1.215639e+00
+100     8.114808e-01    6.850469e-01
+200     7.857338e-01    6.633114e-01
+----------------------------------------------------------------------------
+System: 131072 atoms 68290 ghost atoms, Steps: 200
+TOTAL 1.76s
+
+    | FORCE | NEIGH |BALANCE|FORWARD|REVERSE| UPDATE|  REST |  SETUP|
+----|-------|-------|-------|-------|-------|-------|-------|-------|
+ AVG|   0.08|   1.30|   0.00|   0.00|   0.00|   0.01|   0.39|   0.61|
+ MIN|   0.08|   1.30|   0.00|   0.00|   0.00|   0.01|   0.39|   0.61|
+ MAX|   0.08|   1.30|   0.00|   0.00|   0.00|   0.01|   0.39|   0.61|
+----------------------------------------------------------------------------
+Performance: 14.87 million atom updates per second
+Generating '/tmp/3074717.alex/nsys-report-d968.qdstrm'
+[1/7] [========================100%] report1.nsys-rep
+[2/7] [========================100%] report1.sqlite
+[3/7] Executing 'nvtx_sum' stats report
+SKIPPED: /home/hpc/ptfs/ptfs262h/gpu/report1.sqlite does not contain NV Tools Extension (NVTX) data.
+[4/7] Executing 'cuda_api_sum' stats report
+
+ Time (%)  Total Time (ns)  Num Calls   Avg (ns)    Med (ns)   Min (ns)   Max (ns)   StdDev (ns)           Name         
+ --------  ---------------  ---------  -----------  ---------  --------  ----------  -----------  ----------------------
+     80.4      380,846,038        146  2,608,534.5   26,207.5     8,768  38,766,417  5,413,993.9  cudaMemcpy            
+     17.5       83,103,010        791    105,060.7   14,399.0    11,253     585,484    156,740.9  cudaDeviceSynchronize 
+      0.7        3,264,441        791      4,127.0    3,407.0     3,126     219,059      7,955.4  cudaLaunchKernel      
+      0.6        2,746,569         15    183,104.6  203,298.0     5,371     320,002     99,190.9  cudaMalloc            
+      0.4        2,068,890         12    172,407.5  133,563.0    14,509     461,105    111,107.2  cudaFree              
+      0.3        1,473,106        201      7,328.9    3,768.0     3,357     323,789     23,775.6  cudaMemset            
+      0.0           18,066          1     18,066.0   18,066.0    18,066      18,066          0.0  cuCtxSynchronize      
+      0.0            3,156          1      3,156.0    3,156.0     3,156       3,156          0.0  cudaDeviceReset       
+      0.0              681          1        681.0      681.0       681         681          0.0  cuModuleGetLoadingMode
+
+[5/7] Executing 'cuda_gpu_kern_sum' stats report
+
+ Time (%)  Total Time (ns)  Instances  Avg (ns)   Med (ns)   Min (ns)  Max (ns)  StdDev (ns)                                                Name                                              
+ --------  ---------------  ---------  ---------  ---------  --------  --------  -----------  ------------------------------------------------------------------------------------------------
+     93.4       63,824,297        201  317,533.8  316,704.0   306,944   333,088      5,454.0  computeForceLJCudaSup_warp(float *, float *, int, int *, int *, int, int, float, float, float)  
+      2.7        1,855,072        190    9,763.5    9,760.0     9,248    10,240        230.2  cudaUpdatePbcSup_warp(float *, int *, int *, int *, int *, int *, int, int, float, float, float)
+      1.9        1,332,095        200    6,660.5    6,656.0     6,560     6,912         64.6  cudaFinalIntegrateSup_warp(float *, float *, int, float)                                        
+      1.9        1,324,288        200    6,621.4    6,592.0     6,272     8,128        205.3  cudaInitialIntegrateSup_warp(float *, float *, float *, int, float, float)                      
+
+[6/7] Executing 'cuda_gpu_mem_time_sum' stats report
+
+ Time (%)  Total Time (ns)  Count   Avg (ns)     Med (ns)    Min (ns)    Max (ns)   StdDev (ns)           Operation          
+ --------  ---------------  -----  -----------  -----------  ---------  ----------  -----------  ----------------------------
+     51.6      198,200,685     22  9,009,122.0  6,079,438.0  5,953,629  38,085,105  9,388,487.8  [CUDA memcpy Device-to-Host]
+     45.7      175,683,127    124  1,416,799.4      5,152.0      1,312  21,228,215  3,122,289.1  [CUDA memcpy Host-to-Device]
+      2.7       10,263,833    201     51,063.8     51,008.0     50,496      53,376        359.4  [CUDA memset]               
+
+[7/7] Executing 'cuda_gpu_mem_size_sum' stats report
+
+ Total (MB)  Count  Avg (MB)  Med (MB)  Min (MB)  Max (MB)  StdDev (MB)           Operation          
+ ----------  -----  --------  --------  --------  --------  -----------  ----------------------------
+ 15,436.800    201    76.800    76.800    76.800    76.800        0.000  [CUDA memset]               
+  2,049.180    124    16.526     0.035     0.000    76.800       29.025  [CUDA memcpy Host-to-Device]
+  1,689.600     22    76.800    76.800    76.800    76.800        0.000  [CUDA memcpy Device-to-Host]
