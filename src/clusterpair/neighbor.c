@@ -1073,7 +1073,7 @@ void pruneNeighborCPU(Parameter* param, Atom* atom, Neighbor* neighbor) {
 }
 
 void pruneNeighborSuperclusters(Parameter* param, Atom* atom, Neighbor* neighbor) {
-    DEBUG_MESSAGE("pruneNeighbor start\n");
+    DEBUG_MESSAGE("pruneNeighborSuperclusters start\n");
     // MD_FLOAT cutsq = param->cutforce * param->cutforce;
     MD_FLOAT cutsq = cutneighsq;
 
