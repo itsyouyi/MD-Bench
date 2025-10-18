@@ -1,0 +1,342 @@
+==PROF== Connected to process 3786420 (/home/hpc/ihpc/ihpc157h/origin/push_gpu/MDBench-CP-auto-NVCC-X86-SP)
+Using temporary file: /tmp/3089559.alex/atoms_tmp.txt
+RESIZE 3567
+Parameters:
+	Force field: lj
+	Kernel: GPU, MxN: 8x8, Vector width: 8
+	SIMD Intrinsics: CUDA
+	Super-clustering: yes
+	Data layout: AoS
+	Floating-point precision: single
+	Unit cells (nx, ny, nz): 32, 32, 32
+	Domain box sizes (x, y, z): 5.374708e+01, 5.374708e+01, 5.374708e+01
+	Periodic (x, y, z): 1, 1, 1
+	Lattice size: 1.679596e+00
+	Epsilon: 1.000000e+00
+	Sigma: 1.000000e+00
+	Temperature: 1.440000e+00
+	RHO: 8.442000e-01
+	Mass: 1.000000e+00
+	Number of types: 4
+	Number of timesteps: 200
+	Report stats every (timesteps): 100
+	Reneighbor every (timesteps): 20
+	Sort atoms: no
+	Single atom type: false
+	Prune every (timesteps): 1000
+	Output positions every (timesteps): 20
+	Output velocities every (timesteps): 5
+	Delta time (dt): 5.000000e-03
+	Cutoff radius: 1.500000e+01
+	Skin: 3.000000e-01
+	Half neighbor lists: 0
+	Processor frequency (GHz): 2.4000
+----------------------------------------------------------------------------
+step	temp		pressure
+0	1.440001e+00	1.215639e+00
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+100	8.140914e-01	6.872507e-01
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+==PROF== Profiling "computeForceLJCudaSup_warp": 0%....50%....100% - 1 pass
+200	7.883159e-01	6.654912e-01
+----------------------------------------------------------------------------
+System: 131072 atoms 415260 ghost atoms, Steps: 200
+TOTAL 12.83s
+
+    | FORCE | NEIGH |BALANCE|FORWARD|REVERSE| UPDATE|  REST |  SETUP|
+----|-------|-------|-------|-------|-------|-------|-------|-------|
+ AVG|   4.96|   7.57|   0.00|   0.02|   0.00|   0.01|   0.29|   2.24|
+ MIN|   4.96|   7.57|   0.00|   0.02|   0.00|   0.01|   0.29|   2.24|
+ MAX|   4.96|   7.57|   0.00|   0.02|   0.00|   0.01|   0.29|   2.24|
+----------------------------------------------------------------------------
+Performance: 2.04 million atom updates per second
+==PROF== Disconnected from process 3786420
+[3786420] MDBench-CP-auto-NVCC-X86-SP@127.0.0.1
+  Device 0, CC 8.0
+    computeForceLJCudaSup_warp(float *, float *, int, int *, int *, int, int, float, float, float) (2120, 1, 1)x(8, 8, 1), Invocations 20
+      Section: Command line profiler metrics
+      -------------------- ----------- ------- ------- -------
+      Metric Name          Metric Unit Minimum Maximum Average
+      -------------------- ----------- ------- ------- -------
+      gpu__time_active.sum          ms   11.49   11.65   11.57
+      -------------------- ----------- ------- ------- -------
+
+    computeForceLJCudaSup_warp(float *, float *, int, int *, int *, int, int, float, float, float) (2128, 1, 1)x(8, 8, 1), Invocations 20
+      Section: Command line profiler metrics
+      -------------------- ----------- ------- ------- -------
+      Metric Name          Metric Unit Minimum Maximum Average
+      -------------------- ----------- ------- ------- -------
+      gpu__time_active.sum          ms   11.53   11.68   11.58
+      -------------------- ----------- ------- ------- -------
+
+    computeForceLJCudaSup_warp(float *, float *, int, int *, int *, int, int, float, float, float) (2133, 1, 1)x(8, 8, 1), Invocations 20
+      Section: Command line profiler metrics
+      -------------------- ----------- ------- ------- -------
+      Metric Name          Metric Unit Minimum Maximum Average
+      -------------------- ----------- ------- ------- -------
+      gpu__time_active.sum          ms   11.56   11.67   11.62
+      -------------------- ----------- ------- ------- -------
+
+    computeForceLJCudaSup_warp(float *, float *, int, int *, int *, int, int, float, float, float) (2135, 1, 1)x(8, 8, 1), Invocations 20
+      Section: Command line profiler metrics
+      -------------------- ----------- ------- ------- -------
+      Metric Name          Metric Unit Minimum Maximum Average
+      -------------------- ----------- ------- ------- -------
+      gpu__time_active.sum          ms   11.53   11.57   11.55
+      -------------------- ----------- ------- ------- -------
+
+    computeForceLJCudaSup_warp(float *, float *, int, int *, int *, int, int, float, float, float) (2137, 1, 1)x(8, 8, 1), Invocations 40
+      Section: Command line profiler metrics
+      -------------------- ----------- ------- ------- -------
+      Metric Name          Metric Unit Minimum Maximum Average
+      -------------------- ----------- ------- ------- -------
+      gpu__time_active.sum          ms   11.53   11.70   11.57
+      -------------------- ----------- ------- ------- -------
+
+    computeForceLJCudaSup_warp(float *, float *, int, int *, int *, int, int, float, float, float) (2139, 1, 1)x(8, 8, 1), Invocations 20
+      Section: Command line profiler metrics
+      -------------------- ----------- ------- ------- -------
+      Metric Name          Metric Unit Minimum Maximum Average
+      -------------------- ----------- ------- ------- -------
+      gpu__time_active.sum          ms   11.54   11.63   11.58
+      -------------------- ----------- ------- ------- -------
+
+    computeForceLJCudaSup_warp(float *, float *, int, int *, int *, int, int, float, float, float) (2142, 1, 1)x(8, 8, 1), Invocations 1
+      Section: Command line profiler metrics
+      -------------------- ----------- ------- ------- -------
+      Metric Name          Metric Unit Minimum Maximum Average
+      -------------------- ----------- ------- ------- -------
+      gpu__time_active.sum          ms   11.60   11.60   11.60
+      -------------------- ----------- ------- ------- -------
+
+    computeForceLJCudaSup_warp(float *, float *, int, int *, int *, int, int, float, float, float) (2143, 1, 1)x(8, 8, 1), Invocations 20
+      Section: Command line profiler metrics
+      -------------------- ----------- ------- ------- -------
+      Metric Name          Metric Unit Minimum Maximum Average
+      -------------------- ----------- ------- ------- -------
+      gpu__time_active.sum          ms   11.53   11.61   11.58
+      -------------------- ----------- ------- ------- -------
+
+    computeForceLJCudaSup_warp(float *, float *, int, int *, int *, int, int, float, float, float) (2149, 1, 1)x(8, 8, 1), Invocations 20
+      Section: Command line profiler metrics
+      -------------------- ----------- ------- ------- -------
+      Metric Name          Metric Unit Minimum Maximum Average
+      -------------------- ----------- ------- ------- -------
+      gpu__time_active.sum          ms   11.55   11.69   11.61
+      -------------------- ----------- ------- ------- -------
+
+    computeForceLJCudaSup_warp(float *, float *, int, int *, int *, int, int, float, float, float) (2156, 1, 1)x(8, 8, 1), Invocations 20
+      Section: Command line profiler metrics
+      -------------------- ----------- ------- ------- -------
+      Metric Name          Metric Unit Minimum Maximum Average
+      -------------------- ----------- ------- ------- -------
+      gpu__time_active.sum          ms   11.53   11.68   11.60
+      -------------------- ----------- ------- ------- -------
+
+  Note: The shown averages are calculated as the arithmetic mean of the metric values after the evaluation of the    
+  metrics for each individual kernel launch.                                                                         
+  If aggregating across varying launch configurations (like shared memory, cache config settings), the arithmetic    
+  mean can be misleading and looking at the individual results is recommended instead.                               
+  This output mode is backwards compatible to the per-kernel summary output of nvprof            
+
+
+Average: 11.586     
+
