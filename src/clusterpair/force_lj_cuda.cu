@@ -70,6 +70,14 @@ MD_FLOAT* cuda_epsilon;
 #endif
 }
 
+#ifdef COMPUTE_STATS
+__device__ unsigned long long cuda_atoms_within_cutoff = 0;  
+__device__ unsigned long long cuda_atoms_outside_cutoff = 0;  
+__device__ unsigned long long cuda_clusters_within_cutoff = 0;
+__device__ unsigned long long cuda_clusters_outside_cutoff = 0;
+#endif
+
+
 extern "C" void initDevice(Parameter* param, Atom* atom, Neighbor* neighbor) {
     cuda_assert("cudaDeviceSetup", cudaDeviceReset());
     cuda_assert("cudaDeviceSetup", cudaSetDevice(0));
@@ -218,6 +226,12 @@ __global__ void computeForceLJCudaFullNeigh(
     int type_i      = cuda_cl_t[ci_sca_base + cii];
 #endif
 
+#ifdef COMPUTE_STATS
+    __shared__ int any_not_cond; 
+    __shared__ int any_within;
+#endif
+
+
     for (int k = 0; k < numneighs; k++) {
         int cj          = neighs(cuda_neighs, ci, k, Nclusters_local, maxneighs);
         int cj_vec_base = CJ_VECTOR_BASE_INDEX(cj);
@@ -229,12 +243,22 @@ __global__ void computeForceLJCudaFullNeigh(
 #elif CLUSTER_M < CLUSTER_N
         cond = ci_cj0 != cj || cii + CLUSTER_M * (ci & 0x1) != cjj;
 #endif
+
+#ifdef COMPUTE_STATS
+        if (cii == 0 && cjj == 0) {
+            any_within = 0;
+            any_not_cond = 0;
+        }
+    __syncthreads();
+#endif
         if (cond) {
             MD_FLOAT delx = xtmp - cj_x[CL_X_INDEX(cjj)];
             MD_FLOAT dely = ytmp - cj_x[CL_Y_INDEX(cjj)];
             MD_FLOAT delz = ztmp - cj_x[CL_Z_INDEX(cjj)];
             MD_FLOAT rsq  = delx * delx + dely * dely + delz * delz;
-
+#ifdef COMPUTE_STATS
+            any_not_cond = 1;
+#endif
 #ifndef ONE_ATOM_TYPE
             int cj_sca_base     = CJ_SCALAR_BASE_INDEX(cj);
             int type_j          = cuda_cl_t[cj_sca_base + cjj];
@@ -253,8 +277,29 @@ __global__ void computeForceLJCudaFullNeigh(
                 fix += delx * force;
                 fiy += dely * force;
                 fiz += delz * force;
+                
+#ifdef COMPUTE_STATS
+                any_within = 1;
+                atomicAdd(&cuda_atoms_within_cutoff, 1ULL);
+#endif
+            }
+#ifdef COMPUTE_STATS
+            else atomicAdd(&cuda_atoms_outside_cutoff, 1ULL);
+#endif
+        }
+#ifdef COMPUTE_STATS
+        __syncthreads(); 
+        
+        if (cii == 0 && cjj == 0) {
+            if (any_not_cond != 0) { 
+                if (any_within != 0) {
+                    atomicAdd(&cuda_clusters_within_cutoff, 1ULL);
+                } else {
+                    atomicAdd(&cuda_clusters_outside_cutoff, 1ULL);
+                }
             }
         }
+#endif
     }
 
     // If M is less than the warp size, we perform forces reduction via
@@ -325,6 +370,11 @@ __global__ void computeForceLJCudaHalfNeigh(
     MD_FLOAT fiy    = 0;
     MD_FLOAT fiz    = 0;
 
+#ifdef COMPUTE_STATS
+    __shared__ int any_not_cond; 
+    __shared__ int any_within;
+#endif
+
 #ifndef ONE_ATOM_TYPE
     int ci_sca_base = CI_SCALAR_BASE_INDEX(ci);
     int type_i      = cuda_cl_t[ci_sca_base + cii];
@@ -341,7 +391,18 @@ __global__ void computeForceLJCudaHalfNeigh(
 #elif CLUSTER_M < CLUSTER_N
         cond = ci_cj0 != cj || cii + CLUSTER_M * (ci & 0x1) < cjj;
 #endif
+
+#ifdef COMPUTE_STATS
+        if (cii == 0 && cjj == 0) {
+            any_within = 0;
+            any_not_cond = 0;
+        }
+    __syncthreads();
+#endif
         if (cond) {
+#ifdef COMPUTE_STATS
+            any_not_cond = 1;
+#endif
             MD_FLOAT delx = xtmp - cj_x[CL_X_INDEX(cjj)];
             MD_FLOAT dely = ytmp - cj_x[CL_Y_INDEX(cjj)];
             MD_FLOAT delz = ztmp - cj_x[CL_Z_INDEX(cjj)];
@@ -372,8 +433,29 @@ __global__ void computeForceLJCudaHalfNeigh(
                 fix += partial_force_x;
                 fiy += partial_force_y;
                 fiz += partial_force_z;
+                            
+                #ifdef COMPUTE_STATS
+                any_within = 1;
+                atomicAdd(&cuda_atoms_within_cutoff, 1ULL);
+                #endif
+            }
+            #ifdef COMPUTE_STATS
+            else atomicAdd(&cuda_atoms_outside_cutoff, 1ULL);
+            #endif
+        }
+#ifdef COMPUTE_STATS
+        __syncthreads(); 
+        
+        if (cii == 0 && cjj == 0) {
+            if (any_not_cond != 0) { 
+                if (any_within != 0) {
+                    atomicAdd(&cuda_clusters_within_cutoff, 1ULL);
+                } else {
+                    atomicAdd(&cuda_clusters_outside_cutoff, 1ULL);
+                }
             }
         }
+#endif
     }
 
     atomicAdd(&ci_f[CL_X_INDEX_3D(cii)], fix);
@@ -602,6 +684,12 @@ extern "C" double computeForceLJCuda(Parameter* param, Atom* atom, Neighbor* nei
     LIKWID_MARKER_STOP("force");
     double E = getTimeStamp();
     DEBUG_MESSAGE("computeForceLJCuda stop\r\n");
+#ifdef COMPUTE_STATS
+    cudaMemcpyFromSymbol(&stats->atoms_within_cutoff, cuda_atoms_within_cutoff, sizeof(unsigned long long));
+    cudaMemcpyFromSymbol(&stats->atoms_outside_cutoff, cuda_atoms_outside_cutoff, sizeof(unsigned long long));
+    cudaMemcpyFromSymbol(&stats->clusters_within_cutoff, cuda_clusters_within_cutoff, sizeof(unsigned long long));
+    cudaMemcpyFromSymbol(&stats->clusters_outside_cutoff, cuda_clusters_outside_cutoff, sizeof(unsigned long long));
+#endif
     return E - S;
 }
 
