@@ -24,6 +24,8 @@ void initStats(Stats* s) {
     s->atoms_outside_cutoff    = 0;
     s->clusters_within_cutoff  = 0;
     s->clusters_outside_cutoff = 0;
+    s->warp_diverged           = 0;
+    s->warp_total              = 0;
 }
 
 void displayStatistics(Atom* atom, Parameter* param, Stats* stats, double* timer) {
@@ -61,6 +63,11 @@ void displayStatistics(Atom* atom, Parameter* param, Stats* stats, double* timer
                              (double)(stats->calculated_forces);
     double avgSimd = stats->force_iters / (double)(atom->Natoms * (param->ntimes + 1));
 
+    double warpDiv = (double)(stats->warp_diverged) / (double)(stats->warp_total) * 100;
+    double warpTruePct   = 100.0 * stats->warp_true / stats->warp_total;
+    double warpFalsePct  = 100.0 * stats->warp_false / stats->warp_total;
+
+
 #ifndef ONE_ATOM_TYPE
     forceUsefulVolume += 1e-9 *
                          (double)((atom->Natoms * (param->ntimes + 1)) +
@@ -79,6 +86,9 @@ void displayStatistics(Atom* atom, Parameter* param, Stats* stats, double* timer
         printf("\tTotal number of computed pair interactions: %lld\n",
             stats->num_neighs * MxN);
         printf("\tTotal number of SIMD iterations: %lld\n", stats->force_iters);
+        printf("\tWarp Diverged: %.2f %%\n", warpDiv);
+        printf("\tTrue Warp: %.2f %%\n", warpTruePct);
+        printf("\tFalse Warp: %.2f %%\n", warpFalsePct);
         printf("\tUseful read data volume for force computation: %.2fGB\n",
             forceUsefulVolume);
         printf("\tCycles/SIMD iteration: %.4f\n",
@@ -117,6 +127,8 @@ void displayStatistics(Atom* atom, Parameter* param, Stats* stats, double* timer
             stats->clusters_outside_cutoff,
             clusters_eff);
     }
+   
+    
 #endif
 
 #endif

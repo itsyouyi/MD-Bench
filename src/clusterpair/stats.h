@@ -17,6 +17,10 @@ typedef struct {
     long long int atoms_outside_cutoff;
     long long int clusters_within_cutoff;
     long long int clusters_outside_cutoff;
+    long long int warp_diverged;
+    long long int warp_total;
+    long long int warp_true;
+    long long int warp_false;
 } Stats;
 
 void initStats(Stats* s);

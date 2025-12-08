@@ -39,7 +39,14 @@ __device__ unsigned long long cuda_atoms_within_cutoff = 0;
 __device__ unsigned long long cuda_atoms_outside_cutoff = 0;  
 __device__ unsigned long long cuda_clusters_within_cutoff = 0;
 __device__ unsigned long long cuda_clusters_outside_cutoff = 0;
+__device__ unsigned long long cuda_num_neighs = 0;
+__device__ unsigned long long cuda_calculated_forces = 0;
+__device__ unsigned long long cuda_warp_diverged  = 0;
+__device__ unsigned long long cuda_warp_total = 0;
+__device__ unsigned long long cuda_warp_true  = 0;
+__device__ unsigned long long cuda_warp_false  = 0;
 #endif
+
 
 __global__ void cudaInitialIntegrateSup_warp(MD_FLOAT* cuda_cl_x,
     MD_FLOAT* cuda_cl_v,
@@ -133,10 +140,6 @@ __global__ void computeForceLJCudaSup_warp(MD_FLOAT* cuda_cl_x,
     MD_FLOAT epsilon) {
 
     __shared__ MD_FLOAT4 sh_sci_x[SCLUSTER_SIZE * CLUSTER_M];
-    #ifdef COMPUTE_STATS
-        __shared__ int any_sci; 
-        __shared__ int any_not_skip;
-    #endif
     int sci = blockIdx.x;
     int cii = threadIdx.y;
     int cjj = threadIdx.x;
@@ -144,6 +147,12 @@ __global__ void computeForceLJCudaSup_warp(MD_FLOAT* cuda_cl_x,
     MD_FLOAT* sci_f  = &cuda_cl_f[SCI_VECTOR3_BASE_INDEX(sci)];
     int tid = cjj * CLUSTER_M + cii;
     MD_FLOAT3 fbuf[SCLUSTER_SIZE];
+
+    #ifdef COMPUTE_STATS
+    __shared__ int any_within; 
+    __shared__ int any_not_skip;
+    int lane = threadIdx.y * blockDim.x + threadIdx.x;
+    #endif
 
     #pragma unroll
     for(int i = 0; i < SCLUSTER_SIZE; i++) {
@@ -161,6 +170,13 @@ __global__ void computeForceLJCudaSup_warp(MD_FLOAT* cuda_cl_x,
 
     __syncthreads();
 
+#ifdef COMPUTE_STATS
+if (cjj == 0 && cii == 0){
+        atomicAdd(&cuda_num_neighs, (unsigned long long)cuda_numneigh[sci]);
+        atomicAdd(&cuda_calculated_forces, 1ULL);
+}
+#endif
+
     for(int k = 0; k < cuda_numneigh[sci]; k++) {
         int cj          = neighs(cuda_neighs, sci, k, Nclusters_local, maxneighs);
         MD_FLOAT* cj_x  = &cuda_cl_x[CJ_VECTOR_BASE_INDEX(cj)];
@@ -169,7 +185,6 @@ __global__ void computeForceLJCudaSup_warp(MD_FLOAT* cuda_cl_x,
         MD_FLOAT yjtmp  = cj_x[CL_Y_INDEX(cjj)];
         MD_FLOAT zjtmp  = cj_x[CL_Z_INDEX(cjj)];
 
-
         #pragma unroll
         for(int sci_ci = 0; sci_ci < SCLUSTER_SIZE; sci_ci++) {
             const int ci = sci * SCLUSTER_SIZE + sci_ci;
@@ -177,7 +192,7 @@ __global__ void computeForceLJCudaSup_warp(MD_FLOAT* cuda_cl_x,
 
             #ifdef COMPUTE_STATS
             if (cjj == 0 && cii == 0){
-                any_sci = 0;
+                any_within = 0;
                 any_not_skip = 0;
             }
             __syncthreads();
@@ -189,17 +204,34 @@ __global__ void computeForceLJCudaSup_warp(MD_FLOAT* cuda_cl_x,
                 skip = (ci == cj && cii == cjj);
             }
        
-            if(!skip) {
-                #ifdef COMPUTE_STATS
-                any_not_skip = 1; 
-                #endif
+            // if(!skip) 
+            {
                 int ai = sci_ci * CLUSTER_M + cii;
                 MD_FLOAT delx = sh_sci_x[ai].x - xjtmp;
                 MD_FLOAT dely = sh_sci_x[ai].y - yjtmp;
                 MD_FLOAT delz = sh_sci_x[ai].z - zjtmp;
                 MD_FLOAT rsq  = delx * delx + dely * dely + delz * delz;
 
-                if(rsq < cutforcesq) {
+                #ifdef COMPUTE_STATS
+                any_not_skip = 1; 
+                const unsigned FULL_MASK = 0xFFFFFFFF;
+                bool cond = (rsq < cutforcesq);
+                unsigned vote_if = __ballot_sync(FULL_MASK, cond);
+                unsigned vote_else = __ballot_sync(FULL_MASK, !cond);
+                bool diverged = (vote_if != 0) && (vote_else != 0);
+                if (lane == 0) {
+                    if (vote_if != 0)   atomicAdd(&cuda_warp_true, 1);
+            
+                    if (vote_else != 0) atomicAdd(&cuda_warp_false, 1);
+
+                    if (diverged)       atomicAdd(&cuda_warp_diverged, 1);
+      
+                    atomicAdd(&cuda_warp_total, 1);
+                }
+                
+                #endif
+
+                if(!skip && rsq < cutforcesq) {
                     MD_FLOAT sr2   = (MD_FLOAT)(1.0) / rsq;
                     MD_FLOAT sr6   = sr2 * sr2 * sr2 * sigma6;
                     MD_FLOAT force = (MD_FLOAT)(48.0) * sr6 * (sr6 - (MD_FLOAT)(0.5)) * sr2 *
@@ -219,7 +251,7 @@ __global__ void computeForceLJCudaSup_warp(MD_FLOAT* cuda_cl_x,
                     }
 
                     #ifdef COMPUTE_STATS
-                    any_sci = 1;
+                    any_within = 1;
                     atomicAdd(&cuda_atoms_within_cutoff, 1ULL);
                     #endif
                 }
@@ -232,7 +264,7 @@ __global__ void computeForceLJCudaSup_warp(MD_FLOAT* cuda_cl_x,
             __syncthreads(); 
             if (cjj == 0 && cii == 0) {
                 if (any_not_skip != 0) { 
-                    if (any_sci != 0) {
+                    if (any_within != 0) {
                         atomicAdd(&cuda_clusters_within_cutoff, 1ULL);
                     } else {
                         atomicAdd(&cuda_clusters_outside_cutoff, 1ULL);
@@ -242,6 +274,7 @@ __global__ void computeForceLJCudaSup_warp(MD_FLOAT* cuda_cl_x,
             #endif  
 
         }
+    
     }
 
     #pragma unroll
@@ -349,6 +382,12 @@ extern "C" double computeForceLJCudaSup(Parameter* param, Atom* atom, Neighbor* 
     cudaMemcpyFromSymbol(&stats->atoms_outside_cutoff, cuda_atoms_outside_cutoff, sizeof(unsigned long long));
     cudaMemcpyFromSymbol(&stats->clusters_within_cutoff, cuda_clusters_within_cutoff, sizeof(unsigned long long));
     cudaMemcpyFromSymbol(&stats->clusters_outside_cutoff, cuda_clusters_outside_cutoff, sizeof(unsigned long long));
+    cudaMemcpyFromSymbol(&stats->num_neighs, cuda_num_neighs, sizeof(unsigned long long));
+    cudaMemcpyFromSymbol(&stats->calculated_forces, cuda_calculated_forces, sizeof(unsigned long long));
+    cudaMemcpyFromSymbol(&stats->warp_diverged, cuda_warp_diverged, sizeof(unsigned long long));
+    cudaMemcpyFromSymbol(&stats->warp_total, cuda_warp_total, sizeof(unsigned long long));
+    cudaMemcpyFromSymbol(&stats->warp_true, cuda_warp_true, sizeof(unsigned long long));
+    cudaMemcpyFromSymbol(&stats->warp_false, cuda_warp_false, sizeof(unsigned long long));
 #endif
     return E - S;
 }
