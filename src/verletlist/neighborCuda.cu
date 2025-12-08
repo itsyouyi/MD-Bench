@@ -217,6 +217,8 @@ void binatoms_cuda(Atom* atom,
     Neighbor_params* np,
     const int threads_per_block)
 {
+    DEBUG_MESSAGE("binatoms_cuda begin\n");
+
     int nall             = atom->Nlocal + atom->Nghost;
     int resize           = 1;
     const int num_blocks = ceil((float)nall / (float)threads_per_block);
@@ -250,13 +252,14 @@ void binatoms_cuda(Atom* atom,
         c_binning->atoms_per_bin);
     cuda_assert("sort_bin", cudaPeekAtLastError());
     cuda_assert("sort_bin", cudaDeviceSynchronize());
+
+    DEBUG_MESSAGE("binatoms_cuda end\n");
 }
 
-void buildNeighborCUDA(Atom* atom, Neighbor* neighbor)
-{
+void buildNeighborCUDA(Atom* atom, Neighbor* neighbor) {
+    DEBUG_MESSAGE("buildNeighborCUDA begin\n");
     DeviceNeighbor* d_neighbor      = &(neighbor->d_neighbor);
     const int num_threads_per_block = get_cuda_num_threads();
-    
     cudaProfilerStart();
     
     int nall                  = atom->Nlocal + atom->Nghost;
@@ -355,4 +358,5 @@ void buildNeighborCUDA(Atom* atom, Neighbor* neighbor)
     }
 
     cudaProfilerStop();
+    DEBUG_MESSAGE("buildNeighborCUDA end\n");
 }

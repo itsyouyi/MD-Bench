@@ -274,8 +274,6 @@ static unsigned int get_imask_simd_j8(int rdiag, int ci, int cj) {
 
 void buildNeighborCPU(Atom* atom, Neighbor* neighbor) {
     DEBUG_MESSAGE("buildNeighbor start\n");
-    const int nbM = atom->Nclusters_local;
-    const int nbN = neighbor->maxneighs;
 
     /* extend atom arrays if necessary */
     if (atom->Nclusters_local > nmax) {
@@ -299,6 +297,8 @@ void buildNeighborCPU(Atom* atom, Neighbor* neighbor) {
 
     /* loop over each atom, storing neighbors */
     while (resize) {
+        const int nbM     = atom->Nclusters_local;
+        const int nbN     = neighbor->maxneighs;
         int new_maxneighs = neighbor->maxneighs;
         resize            = 0;
         for (int ci = 0; ci < atom->Nclusters_local; ci++) {
@@ -710,8 +710,6 @@ void buildNeighborCPU(Atom* atom, Neighbor* neighbor) {
 // TODO For future parallelization on GPU
 void buildNeighborSuperclusters(Atom* atom, Neighbor* neighbor) {
     DEBUG_MESSAGE("buildNeighborSuperclusters start\n");
-    const int nbM = atom->Nclusters_local;
-    const int nbN = neighbor->maxneighs;
 
     /* extend atom arrays if necessary */
     if (atom->Nclusters_local > nmax) {
@@ -730,6 +728,8 @@ void buildNeighborSuperclusters(Atom* atom, Neighbor* neighbor) {
 
     /* loop over each atom, storing neighbors */
     while (resize) {
+        const int nbM     = atom->Nclusters_local;
+        const int nbN     = neighbor->maxneighs;
         int new_maxneighs = neighbor->maxneighs;
         resize            = 0;
 

@@ -141,8 +141,13 @@ __global__ void computeForceLJCudaSup_warp(MD_FLOAT* cuda_cl_x,
 
     __shared__ MD_FLOAT4 sh_sci_x[SCLUSTER_SIZE * CLUSTER_M];
     int sci = blockIdx.x;
+    #ifdef SUPERCLUSTER_INVERSE_THREAD_MAPPING
     int cii = threadIdx.y;
     int cjj = threadIdx.x;
+    #else
+    int cii = threadIdx.x;
+    int cjj = threadIdx.y;
+    #endif
     MD_FLOAT* sci_x  = &cuda_cl_x[SCI_VECTOR_BASE_INDEX(sci)];
     MD_FLOAT* sci_f  = &cuda_cl_f[SCI_VECTOR3_BASE_INDEX(sci)];
     int tid = cjj * CLUSTER_M + cii;
@@ -280,40 +285,61 @@ if (cjj == 0 && cii == 0){
     #pragma unroll
     for(int sci_ci = 0; sci_ci < SCLUSTER_SIZE; sci_ci++) {
         int ai = sci_ci * CLUSTER_M + cii;
-        
+
         // If M is less than the warp size, we perform forces reduction via
         // warp shuffles instead of using atomics since it should be cheaper
         // It is very unlikely that M > 32, but we keep this check here to
         // avoid any issues in such situations
         #if CLUSTER_M <= 32
-	if (half_neigh) {
-		atomicAdd(&sci_f[CL_X_INDEX_3D(ai)], fbuf[sci_ci].x);
-		atomicAdd(&sci_f[CL_Y_INDEX_3D(ai)], fbuf[sci_ci].y);
-		atomicAdd(&sci_f[CL_Z_INDEX_3D(ai)], fbuf[sci_ci].z);
-	} else {
-		MD_FLOAT fix  = fbuf[sci_ci].x;
-		MD_FLOAT fiy  = fbuf[sci_ci].y;
-		MD_FLOAT fiz  = fbuf[sci_ci].z;
-		unsigned mask = 0xffffffff;
+        if (half_neigh) {
+            atomicAdd(&sci_f[CL_X_INDEX_3D(ai)], fbuf[sci_ci].x);
+            atomicAdd(&sci_f[CL_Y_INDEX_3D(ai)], fbuf[sci_ci].y);
+            atomicAdd(&sci_f[CL_Z_INDEX_3D(ai)], fbuf[sci_ci].z);
+        } else {
+            MD_FLOAT fix  = fbuf[sci_ci].x;
+            MD_FLOAT fiy  = fbuf[sci_ci].y;
+            MD_FLOAT fiz  = fbuf[sci_ci].z;
+            unsigned mask = 0xffffffff;
 
-		for (int offset = CLUSTER_M / 2; offset > 0; offset /= 2) {
-		    fix += __shfl_down_sync(mask, fix, offset);
-		    fiy += __shfl_down_sync(mask, fiy, offset);
-		    fiz += __shfl_down_sync(mask, fiz, offset);
-		}
+            #ifdef SUPERCLUSTER_INVERSE_THREAD_MAPPING
+            for (int offset = CLUSTER_M / 2; offset > 0; offset /= 2) {
+                fix += __shfl_down_sync(mask, fix, offset);
+                fiy += __shfl_down_sync(mask, fiy, offset);
+                fiz += __shfl_down_sync(mask, fiz, offset);
+            }
 
-		if (cjj == 0) {
-		    sci_f[CL_X_INDEX_3D(ai)] = fix;
-		    sci_f[CL_Y_INDEX_3D(ai)] = fiy;
-		    sci_f[CL_Z_INDEX_3D(ai)] = fiz;
-		}
-	}
+            if (cjj == 0) {
+                sci_f[CL_X_INDEX_3D(ai)] = fix;
+                sci_f[CL_Y_INDEX_3D(ai)] = fiy;
+                sci_f[CL_Z_INDEX_3D(ai)] = fiz;
+            }
+            #else
+            fix += __shfl_down_sync(mask, fix, CLUSTER_M);
+            fiy += __shfl_up_sync(mask, fiy, CLUSTER_M);
+            fiz += __shfl_down_sync(mask, fiz, CLUSTER_M);
 
-	#else
-	atomicAdd(&sci_f[CL_X_INDEX_3D(ai)], fbuf[sci_ci].x);
-	atomicAdd(&sci_f[CL_Y_INDEX_3D(ai)], fbuf[sci_ci].y);
-	atomicAdd(&sci_f[CL_Z_INDEX_3D(ai)], fbuf[sci_ci].z);
-	#endif
+            if(cjj & 1) {
+                fix = fiy;
+            }
+
+            fix += __shfl_down_sync(mask, fix, 2 * CLUSTER_M);
+            fiz += __shfl_up_sync(mask, fiz, 2 * CLUSTER_M);
+            if(cjj & 2) {
+                fix = fiz;
+            }
+
+            /* Threads 0,1,2 and 4,5,6 increment x,y,z for their warp */
+            if((cjj & 3) < 3) {
+                atomicAdd(&sci_f[ai * 3 + (cjj & 3)], fix);
+            }
+            #endif
+        }
+
+        #else
+        atomicAdd(&sci_f[CL_X_INDEX_3D(ai)], fbuf[sci_ci].x);
+        atomicAdd(&sci_f[CL_Y_INDEX_3D(ai)], fbuf[sci_ci].y);
+        atomicAdd(&sci_f[CL_Z_INDEX_3D(ai)], fbuf[sci_ci].z);
+        #endif
     }
 }
 

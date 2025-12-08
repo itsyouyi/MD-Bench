@@ -253,8 +253,8 @@ void setupNeighbor(Parameter* param)
     bins = (int*)malloc(mbins * atoms_per_bin * sizeof(int));
 }
 
-void buildNeighborCPU(Atom* atom, Neighbor* neighbor)
-{
+void buildNeighborCPU(Atom* atom, Neighbor* neighbor) {
+    DEBUG_MESSAGE("buildNeighborCPU begin\n");
     int nall = atom->Nlocal + atom->Nghost;
 
     /* extend atom arrays if necessary */
@@ -332,12 +332,16 @@ void buildNeighborCPU(Atom* atom, Neighbor* neighbor)
                 atom->Nmax * neighbor->maxneighs * sizeof(int));
         }
     }
-    if (method == eightShell) neighborGhost(atom, neighbor);
+
+    if (method == eightShell) {
+        neighborGhost(atom, neighbor);
+    }
+
+    DEBUG_MESSAGE("buildNeighborCPU end\n");
 }
 
 /* internal subroutines */
-MD_FLOAT bindist(int i, int j, int k)
-{
+MD_FLOAT bindist(int i, int j, int k) {
     MD_FLOAT delx, dely, delz;
 
     if (i > 0) {
@@ -367,8 +371,7 @@ MD_FLOAT bindist(int i, int j, int k)
     return (delx * delx + dely * dely + delz * delz);
 }
 
-int coord2bin(MD_FLOAT xin, MD_FLOAT yin, MD_FLOAT zin)
-{
+int coord2bin(MD_FLOAT xin, MD_FLOAT yin, MD_FLOAT zin) {
     int ix, iy, iz;
     MD_FLOAT eps = 1e-9;
     MD_FLOAT xlo = 0.0;
@@ -412,8 +415,9 @@ int coord2bin(MD_FLOAT xin, MD_FLOAT yin, MD_FLOAT zin)
     */
 }
 
-void binatoms(Atom* atom)
-{
+void binatoms(Atom* atom) {
+    DEBUG_MESSAGE("binatoms begin\n");
+
     int nall   = atom->Nlocal + atom->Nghost;
     int resize = 1;
 
@@ -441,10 +445,13 @@ void binatoms(Atom* atom)
             bins = (int*)malloc(mbins * atoms_per_bin * sizeof(int));
         }
     }
+
+    DEBUG_MESSAGE("binatoms end\n");
 }
 
-void sortAtom(Atom* atom)
-{
+void sortAtom(Atom* atom) {
+    DEBUG_MESSAGE("sortAtom begin\n");
+
     binatoms(atom);
     int Nmax    = atom->Nmax;
     int* binpos = bincount;
@@ -509,13 +516,14 @@ void sortAtom(Atom* atom)
     atom->vy = new_vy;
     atom->vz = new_vz;
 #endif
+
+    DEBUG_MESSAGE("sortAtom end\n");
 }
 
 /* internal subroutines
 Added with MPI*/
 
-static int ghostZone(Atom* atom, int i)
-{
+static int ghostZone(Atom* atom, int i) {
     if (i < atom->Nlocal) return 1;
     else if (method == halfShell)
         return halfZone(atom, i);
@@ -525,8 +533,7 @@ static int ghostZone(Atom* atom, int i)
         return 0;
 }
 
-static int eightZone(Atom* atom, int i)
-{
+static int eightZone(Atom* atom, int i) {
     // Mapping: 0->0, 1->1, 2->2, 3->6, 4->3, 5->5, 6->4, 7->7
     int zoneMapping[] = { 0, 1, 2, 6, 3, 5, 4, 7 };
     MD_FLOAT* hi      = atom->mybox.hi;
@@ -547,8 +554,7 @@ static int eightZone(Atom* atom, int i)
     return zoneMapping[zone];
 }
 
-static int halfZone(Atom* atom, int i)
-{
+static int halfZone(Atom* atom, int i) {
     MD_FLOAT* hi = atom->mybox.hi;
     MD_FLOAT* lo = atom->mybox.lo;
 
@@ -563,8 +569,9 @@ static int halfZone(Atom* atom, int i)
     }
 }
 
-static void neighborGhost(Atom* atom, Neighbor* neighbor)
-{
+static void neighborGhost(Atom* atom, Neighbor* neighbor) {
+    DEBUG_MESSAGE("neighborGhost begin\n");
+
     int Nshell = 0;
     int Nlocal = atom->Nlocal;
     int Nghost = atom->Nghost;
@@ -656,11 +663,12 @@ static void neighborGhost(Atom* atom, Neighbor* neighbor)
                 Nshell * neighbor->maxneighs * sizeof(int));
         }
     }
+
     free(listzone);
+    DEBUG_MESSAGE("neighborGhost end\n");
 }
 
-static inline int skipNeigh(Atom* atom, int i, int j)
-{
+static inline int skipNeigh(Atom* atom, int i, int j) {
     if (i > j && j < atom->Nlocal) {
         return 1;
     } else if (atom_z(i) > atom_z(j) && j >= atom->Nlocal) {

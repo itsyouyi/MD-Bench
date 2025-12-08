@@ -43,8 +43,11 @@ ENABLE_OMP_SIMD ?= true
 # Configurations for clusterpair optimization scheme
 # Cluster pair kernel variant (auto/4xN/2xNN/gpusimple)
 CLUSTER_PAIR_KERNEL ?= auto
-# AOS3 or AOS4 or SOA
+# Data layout for super-clustering kernels (AOS3/AOS4/SOA)
 SUPERCLUSTER_DATA_LAYOUT ?= AOS3
+# Map threadIdx.y to cii and threadIdx.x to cjj (true or false)
+# If false, use same thread mapping and reduction instructions as Gromacs
+SUPERCLUSTER_INVERSE_THREAD_MAPPING ?= true
 # Use scalar version (and pray for the compiler to vectorize the code properly)
 USE_SCALAR_KERNEL ?= false
 # Use reference version (for correction and metrics purposes)
@@ -130,7 +133,7 @@ else
 endif
 endif
 ifeq ($(strip $(ATOM_DATA_LAYOUT)),AOS)
-    DEFINES +=  -DPOSITION_AOS
+    DEFINES +=  -DATOM_POSITION_AOS
 endif
 ifeq ($(strip $(NBLIST_DATA_LAYOUT)),auto)
     NBLIST_DATA_LAYOUT=$(NBLIST_DATA_LAYOUT_DEFAULT)
@@ -235,6 +238,10 @@ endif
 
 ifeq ($(strip $(OPT_SCHEME)),clusterpair)
     DEFINES += -DCLUSTER_PAIR
+endif
+
+ifeq ($(strip $(SUPERCLUSTER_INVERSE_THREAD_MAPPING)),true)
+    DEFINES += -DSUPERCLUSTER_INVERSE_THREAD_MAPPING
 endif
 
 ifeq ($(strip $(OPT_SCHEME)),verletlist)

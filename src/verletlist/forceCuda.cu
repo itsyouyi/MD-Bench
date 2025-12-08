@@ -188,6 +188,8 @@ __global__ void kernel_final_integrate(MD_FLOAT dtforce, int Nlocal, DeviceAtom 
 extern "C" {
 
 void finalIntegrateCUDA(bool reneigh, Parameter* param, Atom* atom) {
+    DEBUG_MESSAGE("finalIntegrateCUDA begin\n");
+
     const int Nlocal                = atom->Nlocal;
     const int num_threads_per_block = get_cuda_num_threads();
     const int num_blocks            = ceil((float)Nlocal / (float)num_threads_per_block);
@@ -201,9 +203,13 @@ void finalIntegrateCUDA(bool reneigh, Parameter* param, Atom* atom) {
     if (reneigh) {
         memcpyFromGPU(atom->vx, atom->d_atom.vx, sizeof(MD_FLOAT) * atom->Nlocal * 3);
     }
+
+    DEBUG_MESSAGE("finalIntegrateCUDA end\n");
 }
 
 void initialIntegrateCUDA(bool reneigh, Parameter* param, Atom* atom) {
+    DEBUG_MESSAGE("initialIntegrateCUDA begin\n");
+
     const int Nlocal                = atom->Nlocal;
     const int num_threads_per_block = get_cuda_num_threads();
     const int num_blocks            = ceil((float)Nlocal / (float)num_threads_per_block);
@@ -218,9 +224,13 @@ void initialIntegrateCUDA(bool reneigh, Parameter* param, Atom* atom) {
     if (reneigh) {
         memcpyFromGPU(atom->vx, atom->d_atom.vx, sizeof(MD_FLOAT) * atom->Nlocal * 3);
     }
+
+    DEBUG_MESSAGE("initialIntegrateCUDA end\n");
 }
 
 double computeForceLJCUDA(Parameter* param, Atom* atom, Neighbor* neighbor, Stats* stats) {
+    DEBUG_MESSAGE("computeForceLJCUDA begin\n");
+
     const int num_threads_per_block = get_cuda_num_threads();
     int Nlocal                      = atom->Nlocal;
     int Nmax                        = atom->Nmax;
@@ -284,6 +294,7 @@ double computeForceLJCUDA(Parameter* param, Atom* atom, Neighbor* neighbor, Stat
 
     LIKWID_MARKER_STOP("force");
     double E = getTimeStamp();
+    DEBUG_MESSAGE("computeForceLJCUDA end\n");
     return E - S;
 }
 }
