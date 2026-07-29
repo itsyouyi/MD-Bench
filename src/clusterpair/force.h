@@ -21,7 +21,9 @@ enum forcetype { FF_LJ = 0, FF_EAM };
 extern void initForce(Parameter*);
 extern double computeForceLJRef(Parameter*, Atom*, Neighbor*, Stats*);
 extern double computeForceLJ4xnHalfNeigh(Parameter*, Atom*, Neighbor*, Stats*);
+extern double computeForceLJ4xnHalfNeighC6C12(Parameter*, Atom*, Neighbor*, Stats*);
 extern double computeForceLJ4xnFullNeigh(Parameter*, Atom*, Neighbor*, Stats*);
+extern double computeForceLJ4xnFullNeighC6C12(Parameter*, Atom*, Neighbor*, Stats*);
 extern double computeForceLJ2xnnHalfNeigh(Parameter*, Atom*, Neighbor*, Stats*);
 extern double computeForceLJ2xnnFullNeigh(Parameter*, Atom*, Neighbor*, Stats*);
 extern double computeForceEam(Parameter*, Atom*, Neighbor*, Stats*);
@@ -119,6 +121,7 @@ extern double computeForceLJCUDA(Parameter*, Atom*, Neighbor*, Stats*);
 #endif
 
 #if CLUSTER_N != 2 && CLUSTER_N != 4 && CLUSTER_N != 8
+#warning "CLUSTER_N = " TOSTRING(CLUSTER_N)
 #error "Cluster N dimension can be only 2, 4 and 8"
 #endif
 

@@ -83,6 +83,7 @@ void initAtom(Atom* atom) {
     atom->Nclusters_max   = 0;
     atom->type            = NULL;
     atom->ntypes          = 0;
+    atom->nonbondedParameters = NULL;
     atom->epsilon         = NULL;
     atom->sigma6          = NULL;
     atom->cutforcesq      = NULL;
@@ -91,6 +92,9 @@ void initAtom(Atom* atom) {
     atom->jclusters       = NULL;
     atom->cluster_bin     = NULL;
     atom->siclusters      = NULL;
+    
+    atom->c6  = NULL;
+    atom->c12 = NULL;
 
     initMasks(atom);
     // MPI New features
@@ -530,8 +534,8 @@ int readAtomGmx(Atom *atom, Parameter *param)
     /* SPC/E benchmark: 3-site water (OHH) but only 2 atom types: O and H */
     const int ntypes = 2;
     const int numAtomsInMolecule = 3;
-    const int typeOxygen   = 0;
-    const int typeHydrogen = 1;
+    const int typeOxygen   = 1;
+    const int typeHydrogen = 0;
     atom->ntypes = ntypes;
     
 
@@ -539,6 +543,8 @@ int readAtomGmx(Atom *atom, Parameter *param)
        (Your current LJ-only kernel ignores charges.) */
     /* const MD_FLOAT qO = (MD_FLOAT)-0.8476;
        const MD_FLOAT qH = (MD_FLOAT) 0.4238; */
+    const MD_FLOAT c6Oxygen  = (MD_FLOAT)0.0026173456; /* kJ mol^-1 nm^6  */
+    const MD_FLOAT c12Oxygen = (MD_FLOAT)2.634129e-06; /* kJ mol^-1 nm^12 */
 
     int idx = 0;
     MD_FLOAT vxtmp, vytmp, vztmp;
@@ -591,6 +597,10 @@ int readAtomGmx(Atom *atom, Parameter *param)
     param->zprd = param->zhi;
 
     /* Allocate per-type-pair tables */
+    const int numAtomTypes = ntypes;
+    atom->c6    = allocate(ALIGNMENT, ntypes * ntypes * sizeof(MD_FLOAT));
+    atom->c12    = allocate(ALIGNMENT, ntypes * ntypes * sizeof(MD_FLOAT));
+
     atom->epsilon    = allocate(ALIGNMENT, ntypes * ntypes * sizeof(MD_FLOAT));
     atom->sigma6     = allocate(ALIGNMENT, ntypes * ntypes * sizeof(MD_FLOAT));
     atom->cutforcesq = allocate(ALIGNMENT, ntypes * ntypes * sizeof(MD_FLOAT));
@@ -602,22 +612,23 @@ int readAtomGmx(Atom *atom, Parameter *param)
     const MD_FLOAT cutneighsq = (MD_FLOAT)(param->cutneigh * param->cutneigh);
     const MD_FLOAT cutforcesq = (MD_FLOAT)(param->cutforce * param->cutforce);
 
-    /* ----  default LJ = 0 for all pairs (H has zero LJ) ---- */
-    for (int ti = 0; ti < ntypes; ++ti) {
-        for (int tj = 0; tj < ntypes; ++tj) {
-            const int k = ti * ntypes + tj;
-            atom->epsilon[k]    = (MD_FLOAT)0.0;
-            atom->sigma6[k]     = (MD_FLOAT)0.0;
+
+    /* temporary: keep cutoffs initialized; force path will use C6/C12 later */
+    for (int k = 0; k < ntypes * ntypes; ++k) {
+
             atom->cutneighsq[k] = cutneighsq;
             atom->cutforcesq[k] = cutforcesq;
-        }
+            atom->sigma6[k]     = (MD_FLOAT)0.0;
+            atom->epsilon[k]    = (MD_FLOAT)0.0;
+            if(k==1){
+                atom->c6[k]  = c6Oxygen;
+                atom->c12[k] = c12Oxygen;
+            }else{
+                atom->c6[k]  = (MD_FLOAT)0.0;
+                atom->c12[k] = (MD_FLOAT)0.0;
+            }
+        
     }
-
-    /* ---- only O-O has LJ params ----
-       Here we assume param->epsilon is ε_OO and param->sigma6 is (σ_OO)^6 */
-    const int idxOO = typeOxygen * ntypes + typeOxygen;
-    atom->epsilon[idxOO] = (MD_FLOAT)0.6502;
-    atom->sigma6[idxOO]  = (MD_FLOAT)0.00100705;
 
     return total;
 }
@@ -979,6 +990,11 @@ void freeAtom(Atom* atom) {
     atom->vz = NULL;
     free(atom->type);
     atom->type = NULL;
+
+    free(atom->c6);
+    atom->c6 = NULL;
+    free(atom->c12);
+    atom->c12 = NULL;
 }
 
 void growPbc(Atom* atom) {

@@ -37,10 +37,13 @@ typedef struct {
     int* border_map;
     int* type;
     int ntypes;
+    MD_FLOAT* nonbondedParameters;
     MD_FLOAT* epsilon;
     MD_FLOAT* sigma6;
     MD_FLOAT* cutforcesq;
     MD_FLOAT* cutneighsq;
+    MD_FLOAT* c6;
+    MD_FLOAT* c12;
     int *PBCx, *PBCy, *PBCz;
     // Data in cluster format
     MD_FLOAT* cl_x;
